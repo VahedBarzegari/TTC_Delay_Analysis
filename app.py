@@ -16,6 +16,9 @@ from shiny import reactive
 from shiny.express import render, input, ui
 from shinywidgets import render_plotly, render_altair, render_widget
 
+
+from core_data_code import Bus_general_inf_dataframe
+
 # ---- Global Styles ----
 ui.markdown(
     """
@@ -92,13 +95,6 @@ ui.markdown(
 # ---- Set Page Options ----
 ui.page_opts(window_title="TTC Delay Dashboard", fillable=False)
 
-data = {
-    "Title": ["Start year", "End Year", "No. of Routes", "No. of Incidents"],
-    "Value": [2014, 2024, 194, 613027]  # Replace None with actual values if available
-}
-
-df = pd.DataFrame(data)
-
 
 numbers = list(range(1, 136))  # Creates a list from 1 to 135
 remove_list = [1, 2, 3, 4, 5, 6, 18, 27, 58, 81, 103]  
@@ -123,7 +119,7 @@ with ui.div(class_="header-container"):
 
 # ---- Main UI ----
 with ui.card():
-    with ui.navset_pill(id="tab"):
+    with ui.navset_card_tab(id="tab"):
         # Bus Tab
         with ui.nav_panel("Bus"):
 
@@ -139,7 +135,7 @@ with ui.card():
 
                         @render.data_frame  
                         def penguins_df():
-                            return render.DataGrid(df)  
+                            return render.DataGrid(Bus_general_inf_dataframe, selection_mode="row")  
 
                     with ui.card():
                         ui.card_header("Explanation")
@@ -150,7 +146,8 @@ with ui.card():
                             #if input.tab() == "agency":
                             return ui.TagList(
                                 ui.tags.ul(  # Unordered list for bullet points
-                                    ui.tags.li("All Delays equal to zero are removed."),
+                                    ui.tags.li("All Delays equal to zero were removed."),
+                                    ui.tags.li("All Delays greater than the 995th percentile were removed."),
                                     ui.tags.li("We only hold incidents related to routes that are active in 2025."),
                                     ui.tags.li("Locatio features are deleted as they are not consist of coordinates."),
                                     ui.tags.li("Some direction are labeled as Unknown as they wer not entered correctly in database."),
@@ -194,7 +191,7 @@ with ui.card():
                     if input.year() == str(2024):
                         a = f"Year is {input.year()}, Season is {input.season()}, Month is {input.month()}, Day is {input.day()}"
                     elif str(input.day()) != 'Monday':
-                        a = str(input.day())
+                        a = str(input.route())
                     else:
                         a = input.route()
 
