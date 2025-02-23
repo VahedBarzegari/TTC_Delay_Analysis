@@ -21,10 +21,10 @@ ui.markdown(
     """
     <style>
         /* Reduce Button Font Size */
-        .btn { font-size: 12px !important; padding: 6px 10px; }
+        .btn { font-size: 12px !important; padding: 6px 10px;}
         
         /* Reduce Input Label Font Size */
-        .shiny-input-container label { font-size: 12px !important; }
+        .shiny-input-container label { font-size: 14px !important; }
         
         /* Dashboard Header Styling */
         .header-container {
@@ -52,6 +52,10 @@ ui.markdown(
             padding-left: 10px;
         }
 
+  
+
+     
+
         /* Set Red Background */
         body {
             background-color: #FF2400;
@@ -69,14 +73,40 @@ ui.markdown(
             background-color: white;
             padding: 15px;
             border-radius: 0px;
-            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 2px 2px 10px rgba(0, 250, 0, 0.1);
         }
+        .info-gen-css {
+            font-size: 16px !important; /* Adjust the size as needed */
+            color: purple !important;
+            display: flex !important; /* Enables centering */
+            align-items: center !important; /* Centers vertically */
+            justify-content: center !important; /* Centers horizontally */
+            text-align: center !important; /* Ensures text alignment */
+            font-weight: bold !important; /* Makes the text bold */
+        }
+    }
     </style>
     """
 )
 
 # ---- Set Page Options ----
 ui.page_opts(window_title="TTC Delay Dashboard", fillable=False)
+
+data = {
+    "Title": ["Start year", "End Year", "No. of Routes", "No. of Incidents"],
+    "Value": [2014, 2024, 194, 613027]  # Replace None with actual values if available
+}
+
+df = pd.DataFrame(data)
+
+
+numbers = list(range(1, 136))  # Creates a list from 1 to 135
+remove_list = [1, 2, 3, 4, 5, 6, 18, 27, 58, 81, 103]  
+filtered_numbers = [num for num in numbers if num not in remove_list]
+
+added_routes = [149, 154, 160, 161, 162, 165, 167, 168, 169, 171, 185, 189, 300, 302, 307, 315, 320, 322, 324, 325, 329, 332, 334, 335, 336, 337, 339, 340, 341, 343, 352, 353, 354, 363, 365, 384, 385, 395, 396, 400, 402, 403, 404, 405, 900, 902, 903, 904, 905, 924, 925, 927, 929, 935, 937, 938, 939, 941, 944, 945, 952, 954, 960, 968, 984, 985, 986, 989, 995, 996]
+
+routes_number = filtered_numbers + added_routes
 
 
 # ---- Header ----
@@ -98,7 +128,36 @@ with ui.card():
         with ui.nav_panel("Bus"):
 
             with ui.card():
-                ui.h6("General Information", class_="small-font")
+                
+                ui.card_header("General Information", class_="info-gen-css")
+
+                with ui.layout_columns(col_widths={"sm": (4, 8)}):
+
+
+                    with ui.card():
+                        ui.card_header("Insights")
+
+                        @render.data_frame  
+                        def penguins_df():
+                            return render.DataGrid(df)  
+
+                    with ui.card():
+                        ui.card_header("Explanation")
+
+
+                        @render.ui
+                        def dynamic_content():
+                            #if input.tab() == "agency":
+                            return ui.TagList(
+                                ui.tags.ul(  # Unordered list for bullet points
+                                    ui.tags.li("All Delays equal to zero are removed."),
+                                    ui.tags.li("We only hold incidents related to routes that are active in 2025."),
+                                    ui.tags.li("Locatio features are deleted as they are not consist of coordinates."),
+                                    ui.tags.li("Some direction are labeled as Unknown as they wer not entered correctly in database."),
+                                ),
+                                ui.p("For list of active routes refer to: ", 
+                                    ui.a("ttc.ca/routes/bus", href="https://www.ttc.ca/routes-and-schedules/listroutes/bus", target="_blank"))
+                            )
 
             with ui.card():
                 ui.card_header("Select Filters")
@@ -107,13 +166,20 @@ with ui.card():
                 with ui.card():
                     
 
-                    with ui.layout_columns(col_widths={"sm": (3, 3, 3, 3)}):
+                    with ui.layout_columns(col_widths={"sm": (2, 2, 2, 3, 3)}):
                     
                         # Dropdown Selections
-                        ui.input_select("year", "Select Year", ["All Years"] + [str(y) for y in range(2014, 2025)])
-                        ui.input_select("season", "Select Season", ["All", "Winter", "Spring", "Summer", "Fall"])
-                        ui.input_select("month", "Select Month", ["All"] + [calendar.month_name[m] for m in range(1, 13)])
-                        ui.input_select("day", "Select Day", ["All"] + [str(d) for d in range(1, 32)])
+                        ui.input_select("year", "Year", ["All"] + [str(y) for y in range(2014, 2025)], selected="All", multiple=True, size = 3)
+                        ui.input_select("season", "Season", ["All", "Winter", "Spring", "Summer", "Fall"], selected="All", multiple=True,size = 3)
+                        ui.input_select("month", "Month", ["All"] + [calendar.month_name[m] for m in range(1, 13)], selected="All", multiple=True,size = 3)
+                        # Get list of weekdays (Monday to Sunday)
+                        weekdays = ["All"] + list(calendar.day_name)
+
+                        ui.input_select("day", "Day", weekdays, selected="All", multiple=True,size = 3)
+
+                        ui.input_select("route", "Route", ["All"] + [str(y) for y in routes_number], selected="All", multiple=True, size = 3)
+
+
 
                     # Filter Button
                     ui.input_action_button("apply_filters", "Apply Filters", class_="btn-primary")
@@ -127,8 +193,10 @@ with ui.card():
                 def datefun():  
                     if input.year() == str(2024):
                         a = f"Year is {input.year()}, Season is {input.season()}, Month is {input.month()}, Day is {input.day()}"
+                    elif str(input.day()) != 'Monday':
+                        a = str(input.day())
                     else:
-                        a = f"Year is kir, Season is {input.season()}, Month is {input.month()}, Day is {input.day()}"
+                        a = input.route()
 
                     return a
             
