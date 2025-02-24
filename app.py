@@ -17,7 +17,7 @@ from shiny.express import render, input, ui
 from shinywidgets import render_plotly, render_altair, render_widget
 
 
-from core_data_code import Bus_general_inf_dataframe
+from core_data_code import Bus_general_inf_dataframe, bus_df
 
 # ---- Global Styles ----
 ui.markdown(
@@ -188,14 +188,32 @@ with ui.card():
                 @render.ui  
                 @reactive.event(input.apply_filters)
                 def datefun():  
-                    if input.year() == str(2024):
-                        a = f"Year is {input.year()}, Season is {input.season()}, Month is {input.month()}, Day is {input.day()}"
-                    elif str(input.day()) != 'Monday':
-                        a = str(input.route())
-                    else:
-                        a = input.route()
 
-                    return a
+                    
+
+                    a = str(input.route())
+
+                    
+
+                    if 'All' in a:
+                        b = a
+                    else:
+                        a_tuple = ast.literal_eval(a)  # Convert string to tuple
+                        b = [int(x) for x in a_tuple if x.isdigit()] 
+                        df1 = bus_df[bus_df['Route'].isin(b)]
+
+                        b = str(b)
+
+                        print(len(df1))
+                        b2 = len(df1)
+
+
+                      
+
+
+
+
+                    return b
             
 
 
