@@ -182,39 +182,104 @@ with ui.card():
                     ui.input_action_button("apply_filters", "Apply Filters", class_="btn-primary")
                    
                         
+            ui.br()
 
-            with ui.card():
 
-                @render.ui  
-                @reactive.event(input.apply_filters)
-                def datefun():  
+            with ui.layout_columns(col_widths={"sm": (6,6)}):
+                with ui.card():
+                    ui.card_header("kir1")
+
+                    @render.ui  
+                    @reactive.event(input.apply_filters)
+                    def datefun():  
+
+                        
+
+                        a = str(input.season())
+
+                        
+
+                        if 'All' in a:
+                            b = 90
+                        else:
+                            a_tuple = ast.literal_eval(a)  # Convert string to tuple
+                            b = [x for x in a_tuple] 
+                            df1 = bus_df[bus_df['Season'].isin(b)]
+
+                            print(len(df1))
+
+                            b = str(b)
+
+                            print(b)
+                            b2 = len(df1)
+
+
+                        
+
+
+
+
+                        return b
+                
+
+                
+
+                with ui.card():
+                    ui.card_header("kir2")
+
+
+                    @render.data_frame
+                    @reactive.event(input.apply_filters)
+                    def total_dataframe():
+
+                        c = str(input.year())
+
+                        if 'All' in c:
+                            kir = bus_df
+                        else:
+
+                            c_tuple = ast.literal_eval(c)  # Convert string to tuple
+                            b = [int(x) for x in c_tuple if x.isdigit()] 
+                            kir = bus_df[bus_df['Year'].isin(b)]
+
+                            
+                        a = str(input.season())
+
+                        
+
+                        if 'All' in a:
+                            kir = kir
+                        else:
+                            a_tuple = ast.literal_eval(a)  # Convert string to tuple
+                            b = [x for x in a_tuple] 
+                            kir = kir[kir['Season'].isin(b)]
+
+
+                        a = str(input.month())
+
+                        
+
+                        if 'All' in a:
+                            kir = kir
+                        else:
+                            a_tuple = ast.literal_eval(a)  # Convert string to tuple
+                            b = [x for x in a_tuple] 
+                            kir = kir[kir['Month'].isin(b)]
+                         
+
+
+
+
+
+
+
+
 
                     
+                        return render.DataGrid(kir.head(100), selection_mode="row", filters=False)
+        
+        
 
-                    a = str(input.route())
-
-                    
-
-                    if 'All' in a:
-                        b = a
-                    else:
-                        a_tuple = ast.literal_eval(a)  # Convert string to tuple
-                        b = [int(x) for x in a_tuple if x.isdigit()] 
-                        df1 = bus_df[bus_df['Route'].isin(b)]
-
-                        b = str(b)
-
-                        print(len(df1))
-                        b2 = len(df1)
-
-
-                      
-
-
-
-
-                    return b
-            
 
 
 
