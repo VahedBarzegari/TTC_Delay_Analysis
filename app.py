@@ -184,47 +184,56 @@ with ui.card():
                         
             ui.br()
 
+           
+            with ui.layout_columns(col_widths={"sm": (8,4)}):
+                with ui.card(height='500px'):
+                    
+                    ui.card_header(f'year is')
 
-            with ui.layout_columns(col_widths={"sm": (6,6)}):
-                with ui.card():
-                    ui.card_header("kir1")
-
-                    @render.ui  
+                    @render.plot
                     @reactive.event(input.apply_filters)
-                    def datefun():  
+                    def plot1():
 
-                        
+                        c = str(input.year())
 
-                        a = str(input.season())
-
-                        
-
-                        if 'All' in a:
-                            b = 90
+                        if 'All' in c:
+                            bus_df1 = bus_df
                         else:
-                            a_tuple = ast.literal_eval(a)  # Convert string to tuple
-                            b = [x for x in a_tuple] 
-                            df1 = bus_df[bus_df['Season'].isin(b)]
 
-                            print(len(df1))
-
-                            b = str(b)
-
-                            print(b)
-                            b2 = len(df1)
+                            c_tuple = ast.literal_eval(c)  # Convert string to tuple
+                            b = [int(x) for x in c_tuple if x.isdigit()] 
+                            bus_df1 = bus_df[bus_df['Year'].isin(b)]
 
 
                         
 
+                        # Count of incidents per day
+                        incident_counts = bus_df1.groupby('Date').size()
+
+                        plt.figure()  # Ensure a new figure is created
+                        plt.plot(incident_counts.values, marker='o', color='blue', linestyle='-')
+                        plt.xlabel('Date')
+                        plt.ylabel('Incident Count')
+                        plt.title('Number of Incidents per Day')
+                        plt.grid(axis='y', linestyle='--', alpha=0.7)
+
+                        # Handling x-ticks dynamically
+                        dates = incident_counts.index
+                        num_dates = len(dates)
+
+                        if num_dates <= 10:
+                            plt.xticks(range(num_dates), dates, rotation=45)
+                        else:
+                            selected_indices = [0, num_dates // 2, num_dates - 1]
+                            selected_dates = [dates[i] for i in selected_indices]
+                            plt.xticks(selected_indices, selected_dates, rotation=0)
 
 
-
-                        return b
                 
 
                 
 
-                with ui.card():
+                with ui.card(height='500px'):
                     ui.card_header("kir2")
 
 
