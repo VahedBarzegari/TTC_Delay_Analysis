@@ -185,51 +185,187 @@ with ui.card():
             ui.br()
 
            
-            with ui.layout_columns(col_widths={"sm": (8,4)}):
-                with ui.card(height='500px'):
-                    
-                    ui.card_header(f'year is')
+            with ui.layout_columns(col_widths={"sm": (7,5)}):
+            
 
-                    @render.plot
-                    @reactive.event(input.apply_filters)
-                    def plot1():
-
-                        c = str(input.year())
-
-                        if 'All' in c:
-                            bus_df1 = bus_df
-                        else:
-
-                            c_tuple = ast.literal_eval(c)  # Convert string to tuple
-                            b = [int(x) for x in c_tuple if x.isdigit()] 
-                            bus_df1 = bus_df[bus_df['Year'].isin(b)]
+                with ui.navset_card_tab(id="tab1"):
+                        with ui.nav_panel("Number of Incidents per Day"):
 
 
-                        
-
-                        # Count of incidents per day
-                        incident_counts = bus_df1.groupby('Date').size()
-
-                        plt.figure()  # Ensure a new figure is created
-                        plt.plot(incident_counts.values, marker='o', color='blue', linestyle='-')
-                        plt.xlabel('Date')
-                        plt.ylabel('Incident Count')
-                        plt.title('Number of Incidents per Day')
-                        plt.grid(axis='y', linestyle='--', alpha=0.7)
-
-                        # Handling x-ticks dynamically
-                        dates = incident_counts.index
-                        num_dates = len(dates)
-
-                        if num_dates <= 10:
-                            plt.xticks(range(num_dates), dates, rotation=45)
-                        else:
-                            selected_indices = [0, num_dates // 2, num_dates - 1]
-                            selected_dates = [dates[i] for i in selected_indices]
-                            plt.xticks(selected_indices, selected_dates, rotation=0)
 
 
-                
+                                @render.plot
+                                @reactive.event(input.apply_filters)
+                                def plot1():
+
+                                    c = str(input.year())
+
+                                    if 'All' in c:
+                                        bus_df1 = bus_df
+                                    else:
+
+                                        c_tuple = ast.literal_eval(c)  # Convert string to tuple
+                                        b = [int(x) for x in c_tuple if x.isdigit()] 
+                                        bus_df1 = bus_df[bus_df['Year'].isin(b)]
+
+
+                                    a = str(input.month())
+
+                                    
+
+                                    if 'All' in a:
+
+                                        d = str(input.season())
+
+                                        if 'All' in d:
+                                            bus_df1 = bus_df1
+
+                                        else:
+                                            d_tuple = ast.literal_eval(d)  # Convert string to tuple
+                                            d = [x for x in d_tuple] 
+                                            bus_df1 = bus_df1[bus_df1['Season'].isin(d)]
+
+
+                                    else:
+                                        a_tuple = ast.literal_eval(a)  # Convert string to tuple
+                                        b = [x for x in a_tuple] 
+                                        bus_df1 = bus_df1[bus_df1['Month'].isin(b)]
+
+
+                                    a = str(input.day()) 
+
+                                    if 'All' in a:
+                                        bus_df1 = bus_df1
+                                    else:
+                                        a_tuple = ast.literal_eval(a)  # Convert string to tuple
+                                        a = [x for x in a_tuple] 
+                                        bus_df1 = bus_df1[bus_df1['Day'].isin(a)]
+
+
+                                    c = str(input.route())
+
+                                    if 'All' in c:
+                                        bus_df1 = bus_df1
+                                    else:
+
+                                        c_tuple = ast.literal_eval(c)  # Convert string to tuple
+                                        b = [int(x) for x in c_tuple if x.isdigit()] 
+                                        bus_df1 = bus_df1[bus_df1['Route'].isin(b)]
+
+
+
+
+            
+                                    incident_counts = bus_df1.groupby('Date').size()
+
+
+                                    plt.figure()  # Ensure a new figure is created
+                                    plt.plot(incident_counts.values, color='blue', marker='o', linestyle='-')
+                                    plt.xlabel('Date')
+                       
+                                    plt.grid(axis='y', linestyle='--', alpha=0.7)
+
+                                    # Handling x-ticks dynamically
+                                    dates = incident_counts.index
+                                    num_dates = len(dates)
+
+                                    if num_dates <= 20:
+                                        plt.xticks(range(num_dates), dates, rotation=30)
+                                    else:
+                                        selected_indices = [0, num_dates // 2, num_dates - 1]
+                                        selected_dates = [dates[i] for i in selected_indices]
+                                        plt.xticks(selected_indices, selected_dates, rotation=0)
+
+                        with ui.nav_panel("Duration of Delays per Day"):
+
+
+
+
+                                @render.plot
+                                @reactive.event(input.apply_filters)
+                                def plot2():
+
+                                    c = str(input.year())
+
+                                    if 'All' in c:
+                                        bus_df1 = bus_df
+                                    else:
+
+                                        c_tuple = ast.literal_eval(c)  # Convert string to tuple
+                                        b = [int(x) for x in c_tuple if x.isdigit()] 
+                                        bus_df1 = bus_df[bus_df['Year'].isin(b)]
+
+
+                                    a = str(input.month())
+
+                                    
+
+                                    if 'All' in a:
+
+                                        d = str(input.season())
+
+                                        if 'All' in d:
+                                            bus_df1 = bus_df1
+
+                                        else:
+                                            d_tuple = ast.literal_eval(d)  # Convert string to tuple
+                                            d = [x for x in d_tuple] 
+                                            bus_df1 = bus_df1[bus_df1['Season'].isin(d)]
+
+
+                                    else:
+                                        a_tuple = ast.literal_eval(a)  # Convert string to tuple
+                                        b = [x for x in a_tuple] 
+                                        bus_df1 = bus_df1[bus_df1['Month'].isin(b)]
+
+
+                                    a = str(input.day()) 
+
+                                    if 'All' in a:
+                                        bus_df1 = bus_df1
+                                    else:
+                                        a_tuple = ast.literal_eval(a)  # Convert string to tuple
+                                        a = [x for x in a_tuple] 
+                                        bus_df1 = bus_df1[bus_df1['Day'].isin(a)]
+
+
+                                    c = str(input.route())
+
+                                    if 'All' in c:
+                                        bus_df1 = bus_df1
+                                    else:
+
+                                        c_tuple = ast.literal_eval(c)  # Convert string to tuple
+                                        b = [int(x) for x in c_tuple if x.isdigit()] 
+                                        bus_df1 = bus_df1[bus_df1['Route'].isin(b)]
+
+
+
+
+            
+                                    incident_counts = bus_df1.groupby('Date')['Min Delay'].sum()
+
+
+                                    plt.figure()  # Ensure a new figure is created
+                                    plt.plot(incident_counts.values, color='brown', marker='o', linestyle='-')
+                                    plt.xlabel('Date')
+                                    plt.grid(axis='y', linestyle='--', alpha=0.7)
+
+                                    # Handling x-ticks dynamically
+                                    dates = incident_counts.index
+                                    num_dates = len(dates)
+
+                                    if num_dates <= 20:
+                                        plt.xticks(range(num_dates), dates, rotation=30)
+                                    else:
+                                        selected_indices = [0, num_dates // 2, num_dates - 1]
+                                        selected_dates = [dates[i] for i in selected_indices]
+                                        plt.xticks(selected_indices, selected_dates, rotation=0)
+
+
+
+
+            
 
                 
 
