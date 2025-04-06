@@ -418,8 +418,8 @@ with ui.card():
 
 
 
-
-
+                            
+                        kir.rename(columns={'Time': 'Time of day'}, inplace=True)
                     
                         return render.DataGrid(kir.head(100), selection_mode="row", filters=False)
         
