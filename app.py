@@ -262,7 +262,7 @@ with ui.card():
                                     plt.figure()  # Ensure a new figure is created
                                     plt.plot(incident_counts.values, color='blue', marker='o', linestyle='-')
                                     plt.xlabel('Date')
-                       
+                                    plt.ylabel('Number of Incidents per Day')
                                     plt.grid(axis='y', linestyle='--', alpha=0.7)
 
                                     # Handling x-ticks dynamically
@@ -349,6 +349,7 @@ with ui.card():
                                     plt.figure()  # Ensure a new figure is created
                                     plt.plot(incident_counts.values, color='brown', marker='o', linestyle='-')
                                     plt.xlabel('Date')
+                                    plt.ylabel('Duration of Delays per Day')
                                     plt.grid(axis='y', linestyle='--', alpha=0.7)
 
                                     # Handling x-ticks dynamically
@@ -370,7 +371,7 @@ with ui.card():
                 
 
                 with ui.card(height='500px'):
-                    ui.card_header("kir2")
+                    ui.card_header("Dataframe Based on Filters")
 
 
                     @render.data_frame
@@ -421,7 +422,7 @@ with ui.card():
                             
                         kir.rename(columns={'Time': 'Time of day'}, inplace=True)
                     
-                        return render.DataGrid(kir.head(100), selection_mode="row", filters=False)
+                        return render.DataGrid(kir.head(1000), selection_mode="row", filters=False)
         
         
 
