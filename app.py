@@ -79,14 +79,22 @@ ui.markdown(
             border-radius: 0px;
             box-shadow: 2px 2px 10px rgba(0, 250, 0, 0.1);
         }
+        .card_Explanation {
+            background-color: lightblue;
+            padding: 15px;
+            border-radius: 15px;
+            box-shadow: 2px 2px 10px rgba(0, 250, 0, 0.1);
+            color: black !important;
+        }
         .info-gen-css {
             font-size: 16px !important; /* Adjust the size as needed */
-            color: purple !important;
+            color: yellow !important;
             display: flex !important; /* Enables centering */
             align-items: center !important; /* Centers vertically */
             justify-content: center !important; /* Centers horizontally */
             text-align: center !important; /* Ensures text alignment */
             font-weight: bold !important; /* Makes the text bold */
+            background-color: black !important;
         }
     }
     </style>
@@ -138,20 +146,21 @@ with ui.card():
                         def penguins_df():
                             return render.DataGrid(Bus_general_inf_dataframe, selection_mode="row")  
 
-                    with ui.card():
+                    with ui.card(class_="card_Explanation"):
                         ui.card_header("Explanation")
 
 
                         @render.ui
                         def dynamic_content():
-                            #if input.tab() == "agency":
+
                             return ui.TagList(
                                 ui.tags.ul(  # Unordered list for bullet points
-                                    ui.tags.li("All Delays equal to zero were removed."),
-                                    ui.tags.li("All Delays greater than the 995th percentile were removed."),
+                                    ui.tags.li("All Delays equal to zero are removed from analys."),
+                                    ui.tags.li("All Delays greater than the 995th percentile are removed."),
                                     ui.tags.li("We only hold incidents related to routes that are active in 2025."),
-                                    ui.tags.li("Locatio features are deleted as they are not consist of coordinates."),
-                                    ui.tags.li("Some direction are labeled as Unknown as they wer not entered correctly in database."),
+                                    ui.tags.li("Location features are deleted as they are not consist of coordinates."),
+                                    ui.tags.li("Some direction are labeled as Unknown as they were not entered correctly."),
+                                    style="line-height: 3;"
                                 ),
                                 ui.p("For list of active routes refer to: ", 
                                     ui.a("ttc.ca/routes/bus", href="https://www.ttc.ca/routes-and-schedules/listroutes/bus", target="_blank"))
