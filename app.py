@@ -366,7 +366,95 @@ with ui.card():
 
 
 
+                        with ui.nav_panel("Percentage of Incidents"):
 
+
+
+                
+                            @render.plot
+                            @reactive.event(input.apply_filters)
+                            def plot3():
+
+
+                                c = str(input.year())
+
+                                if 'All' in c:
+                                    bus_df1 = bus_df
+                                else:
+
+                                    c_tuple = ast.literal_eval(c)  # Convert string to tuple
+                                    b = [int(x) for x in c_tuple if x.isdigit()] 
+                                    bus_df1 = bus_df[bus_df['Year'].isin(b)]
+
+
+                                a = str(input.month())
+
+                                
+
+                                if 'All' in a:
+
+                                    d = str(input.season())
+
+                                    if 'All' in d:
+                                        bus_df1 = bus_df1
+
+                                    else:
+                                        d_tuple = ast.literal_eval(d)  # Convert string to tuple
+                                        d = [x for x in d_tuple] 
+                                        bus_df1 = bus_df1[bus_df1['Season'].isin(d)]
+
+
+                                else:
+                                    a_tuple = ast.literal_eval(a)  # Convert string to tuple
+                                    b = [x for x in a_tuple] 
+                                    bus_df1 = bus_df1[bus_df1['Month'].isin(b)]
+
+
+                                a = str(input.day()) 
+
+                                if 'All' in a:
+                                    bus_df1 = bus_df1
+                                else:
+                                    a_tuple = ast.literal_eval(a)  # Convert string to tuple
+                                    a = [x for x in a_tuple] 
+                                    bus_df1 = bus_df1[bus_df1['Day'].isin(a)]
+
+
+                                c = str(input.route())
+
+                                if 'All' in c:
+                                    bus_df1 = bus_df1
+                                else:
+
+                                    c_tuple = ast.literal_eval(c)  # Convert string to tuple
+                                    b = [int(x) for x in c_tuple if x.isdigit()] 
+                                    bus_df1 = bus_df1[bus_df1['Route'].isin(b)]
+
+
+                                # Count and calculate percentages
+                                incident_counts = bus_df1['Incident'].value_counts(normalize=True) * 100
+                                incident_counts = incident_counts.sort_values(ascending=False)
+
+                                print(incident_counts)
+
+                                # Normalize the values for colormap
+                                norm = mcolors.Normalize(vmin=incident_counts.min(), vmax=incident_counts.max())
+                                colors = [cm.Reds(norm(value)) for value in incident_counts.values]
+
+                                # Plot bar chart
+                                plt.figure()
+                                bars = plt.bar(incident_counts.index, incident_counts.values, color=colors)
+
+                                # Add percentage labels above each bar
+                                for bar, pct in zip(bars, incident_counts.values):
+                                    plt.text(bar.get_x() + bar.get_width()/2, bar.get_height(), f'{pct:.1f}%', 
+                                            ha='center', va='bottom', fontsize=8)
+
+                                # Customize plot
+                                plt.xticks(rotation=45, ha='right', fontsize=6)
+                                plt.yticks(fontsize=8)
+                                plt.ylabel('Percentage of Incidents', fontsize=9)
+                                plt.tight_layout()
             
 
                 
@@ -428,92 +516,6 @@ with ui.card():
                         return render.DataGrid(df3.head(1000), selection_mode="row", filters=False)
 
 
-                with ui.card(height='500px'):
-                    ui.card_header("Reseans (Incident)")
-
-        
-                    @render.plot
-                    @reactive.event(input.apply_filters)
-                    def plot3():
-
-
-                        c = str(input.year())
-
-                        if 'All' in c:
-                            bus_df1 = bus_df
-                        else:
-
-                            c_tuple = ast.literal_eval(c)  # Convert string to tuple
-                            b = [int(x) for x in c_tuple if x.isdigit()] 
-                            bus_df1 = bus_df[bus_df['Year'].isin(b)]
-
-
-                        a = str(input.month())
-
-                        
-
-                        if 'All' in a:
-
-                            d = str(input.season())
-
-                            if 'All' in d:
-                                bus_df1 = bus_df1
-
-                            else:
-                                d_tuple = ast.literal_eval(d)  # Convert string to tuple
-                                d = [x for x in d_tuple] 
-                                bus_df1 = bus_df1[bus_df1['Season'].isin(d)]
-
-
-                        else:
-                            a_tuple = ast.literal_eval(a)  # Convert string to tuple
-                            b = [x for x in a_tuple] 
-                            bus_df1 = bus_df1[bus_df1['Month'].isin(b)]
-
-
-                        a = str(input.day()) 
-
-                        if 'All' in a:
-                            bus_df1 = bus_df1
-                        else:
-                            a_tuple = ast.literal_eval(a)  # Convert string to tuple
-                            a = [x for x in a_tuple] 
-                            bus_df1 = bus_df1[bus_df1['Day'].isin(a)]
-
-
-                        c = str(input.route())
-
-                        if 'All' in c:
-                            bus_df1 = bus_df1
-                        else:
-
-                            c_tuple = ast.literal_eval(c)  # Convert string to tuple
-                            b = [int(x) for x in c_tuple if x.isdigit()] 
-                            bus_df1 = bus_df1[bus_df1['Route'].isin(b)]
-
-
-                        # Count and calculate percentages
-                        incident_counts = bus_df1['Incident'].value_counts(normalize=True) * 100
-                        incident_counts = incident_counts.sort_values(ascending=False)
-
-                        # Normalize the values for colormap
-                        norm = mcolors.Normalize(vmin=incident_counts.min(), vmax=incident_counts.max())
-                        colors = [cm.Reds(norm(value)) for value in incident_counts.values]
-
-                        # Plot bar chart
-                        plt.figure(figsize=(12, 6))
-                        bars = plt.bar(incident_counts.index, incident_counts.values, color=colors)
-
-                        # Add percentage labels above each bar
-                        for bar, pct in zip(bars, incident_counts.values):
-                            plt.text(bar.get_x() + bar.get_width()/2, bar.get_height(), f'{pct:.1f}%', 
-                                    ha='center', va='bottom', fontsize=8)
-
-                        # Customize plot
-                        plt.xticks(rotation=45, ha='right', fontsize=8)
-                        plt.yticks(fontsize=8)
-                        plt.ylabel('Percentage of Incidents', fontsize=9)
-                        plt.tight_layout()
 
         # Streetcar Tab
         with ui.nav_panel("Streetcar"):
