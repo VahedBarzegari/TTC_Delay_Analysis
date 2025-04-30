@@ -15,7 +15,8 @@ from folium.plugins import HeatMap
 from shiny import reactive
 from shiny.express import render, input, ui
 from shinywidgets import render_plotly, render_altair, render_widget
-
+import matplotlib.cm as cm
+import matplotlib.colors as mcolors
 
 from core_data_code import Bus_general_inf_dataframe, bus_df
 
@@ -491,36 +492,28 @@ with ui.card():
                             bus_df1 = bus_df1[bus_df1['Route'].isin(b)]
 
 
-                        # Count the number of each incident type
-                        incident_counts = bus_df1['Incident'].value_counts()
+                        # Count and calculate percentages
+                        incident_counts = bus_df1['Incident'].value_counts(normalize=True) * 100
+                        incident_counts = incident_counts.sort_values(ascending=False)
 
-                        # Plot pie chart without labels, set small font size
-                        plt.figure(figsize=(10, 8))
-                        wedges, texts, autotexts = plt.pie(
-                            incident_counts, 
-                            autopct='%1.1f%%', 
-                            startangle=140, 
-                            textprops={'fontsize': 8}
-                        )
+                        # Normalize the values for colormap
+                        norm = mcolors.Normalize(vmin=incident_counts.min(), vmax=incident_counts.max())
+                        colors = [cm.Reds(norm(value)) for value in incident_counts.values]
 
-                        # Add legend outside the pie
-                        plt.legend(
-                            wedges, 
-                            incident_counts.index, 
-                            title="Incident Types", 
-                            loc="center left", 
-                            bbox_to_anchor=(1, 0.5), 
-                            fontsize=8,
-                            title_fontsize=9
-                        )
+                        # Plot bar chart
+                        plt.figure(figsize=(12, 6))
+                        bars = plt.bar(incident_counts.index, incident_counts.values, color=colors)
 
-                        plt.title('Distribution of Incident Types', fontsize=10)
-                        plt.axis('equal')  # Equal aspect ratio ensures the pie is a circle.
+                        # Add percentage labels above each bar
+                        for bar, pct in zip(bars, incident_counts.values):
+                            plt.text(bar.get_x() + bar.get_width()/2, bar.get_height(), f'{pct:.1f}%', 
+                                    ha='center', va='bottom', fontsize=8)
+
+                        # Customize plot
+                        plt.xticks(rotation=45, ha='right', fontsize=8)
+                        plt.yticks(fontsize=8)
+                        plt.ylabel('Percentage of Incidents', fontsize=9)
                         plt.tight_layout()
-
-
-
-
 
         # Streetcar Tab
         with ui.nav_panel("Streetcar"):
