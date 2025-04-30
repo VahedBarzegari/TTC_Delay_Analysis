@@ -381,12 +381,12 @@ with ui.card():
                         c = str(input.year())
 
                         if 'All' in c:
-                            kir = bus_df
+                            df3 = bus_df
                         else:
 
                             c_tuple = ast.literal_eval(c)  # Convert string to tuple
                             b = [int(x) for x in c_tuple if x.isdigit()] 
-                            kir = bus_df[bus_df['Year'].isin(b)]
+                            df3 = bus_df[bus_df['Year'].isin(b)]
 
                             
                         a = str(input.season())
@@ -394,11 +394,11 @@ with ui.card():
                         
 
                         if 'All' in a:
-                            kir = kir
+                            df3 = df3
                         else:
                             a_tuple = ast.literal_eval(a)  # Convert string to tuple
                             b = [x for x in a_tuple] 
-                            kir = kir[kir['Season'].isin(b)]
+                            df3 = df3[df3['Season'].isin(b)]
 
 
                         a = str(input.month())
@@ -406,11 +406,11 @@ with ui.card():
                         
 
                         if 'All' in a:
-                            kir = kir
+                            df3 = df3
                         else:
                             a_tuple = ast.literal_eval(a)  # Convert string to tuple
                             b = [x for x in a_tuple] 
-                            kir = kir[kir['Month'].isin(b)]
+                            df3 = df3[df3['Month'].isin(b)]
                          
 
 
@@ -420,15 +420,103 @@ with ui.card():
 
 
                             
-                        kir.rename(columns={'Time': 'Time of day'}, inplace=True)
+                        df3.rename(columns={'Time': 'Time of day'}, inplace=True)
+
+                        
                     
-                        return render.DataGrid(kir.head(1000), selection_mode="row", filters=False)
+                        return render.DataGrid(df3.head(1000), selection_mode="row", filters=False)
+
+
+                with ui.card(height='500px'):
+                    ui.card_header("Reseans (Incident)")
+
         
-        
+                    @render.plot
+                    @reactive.event(input.apply_filters)
+                    def plot3():
 
 
+                        c = str(input.year())
+
+                        if 'All' in c:
+                            bus_df1 = bus_df
+                        else:
+
+                            c_tuple = ast.literal_eval(c)  # Convert string to tuple
+                            b = [int(x) for x in c_tuple if x.isdigit()] 
+                            bus_df1 = bus_df[bus_df['Year'].isin(b)]
 
 
+                        a = str(input.month())
+
+                        
+
+                        if 'All' in a:
+
+                            d = str(input.season())
+
+                            if 'All' in d:
+                                bus_df1 = bus_df1
+
+                            else:
+                                d_tuple = ast.literal_eval(d)  # Convert string to tuple
+                                d = [x for x in d_tuple] 
+                                bus_df1 = bus_df1[bus_df1['Season'].isin(d)]
+
+
+                        else:
+                            a_tuple = ast.literal_eval(a)  # Convert string to tuple
+                            b = [x for x in a_tuple] 
+                            bus_df1 = bus_df1[bus_df1['Month'].isin(b)]
+
+
+                        a = str(input.day()) 
+
+                        if 'All' in a:
+                            bus_df1 = bus_df1
+                        else:
+                            a_tuple = ast.literal_eval(a)  # Convert string to tuple
+                            a = [x for x in a_tuple] 
+                            bus_df1 = bus_df1[bus_df1['Day'].isin(a)]
+
+
+                        c = str(input.route())
+
+                        if 'All' in c:
+                            bus_df1 = bus_df1
+                        else:
+
+                            c_tuple = ast.literal_eval(c)  # Convert string to tuple
+                            b = [int(x) for x in c_tuple if x.isdigit()] 
+                            bus_df1 = bus_df1[bus_df1['Route'].isin(b)]
+
+
+                        # Count the number of each incident type
+                        incident_counts = bus_df1['Incident'].value_counts()
+
+                        # Plot pie chart without labels, set small font size
+                        plt.figure(figsize=(10, 8))
+                        wedges, texts, autotexts = plt.pie(
+                            incident_counts, 
+                            autopct='%1.1f%%', 
+                            startangle=140, 
+                            textprops={'fontsize': 8}
+                        )
+
+                        # Add legend outside the pie
+                        plt.legend(
+                            wedges, 
+                            incident_counts.index, 
+                            title="Incident Types", 
+                            loc="center left", 
+                            bbox_to_anchor=(1, 0.5), 
+                            fontsize=8,
+                            title_fontsize=9
+                        )
+
+                        plt.title('Distribution of Incident Types', fontsize=10)
+                        plt.axis('equal')  # Equal aspect ratio ensures the pie is a circle.
+                        plt.tight_layout()
 
 
 
