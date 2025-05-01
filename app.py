@@ -87,7 +87,7 @@ ui.markdown(
             color: black !important;
         }
         .card_Explanation {
-            background-color: lightblue;
+            background-color: lightgreen;
             padding: 15px;
             border-radius: 15px;
             box-shadow: 2px 2px 10px rgba(0, 250, 0, 0.1);
@@ -109,6 +109,16 @@ ui.markdown(
             text-align: center !important; /* Ensures text alignment */
             font-weight: bold !important; /* Makes the text bold */
             background-color: black !important;
+        }
+        .fliter_box-css {
+            font-size: 16px !important; /* Adjust the size as needed */
+            color: black !important;
+            display: flex !important; /* Enables centering */
+            align-items: center !important; /* Centers vertically */
+            justify-content: center !important; /* Centers horizontally */
+            text-align: center !important; /* Ensures text alignment */
+            font-weight: bold !important; /* Makes the text bold */
+            background-color: lightblue !important;
         }
     }
     </style>
@@ -174,6 +184,7 @@ with ui.card():
                                     ui.tags.li("We only hold incidents related to routes that are active in 2025."),
                                     ui.tags.li("Location features are deleted as they are not consist of coordinates."),
                                     ui.tags.li("Some direction are labeled as Unknown as they were not entered correctly."),
+                                    ui.tags.li("Iformation of December 2024 is not included in the databse."),
                                     style="line-height: 3;"
                                 ),
                                 ui.p("For list of active routes refer to: ", 
@@ -182,7 +193,7 @@ with ui.card():
 
             ui.br()
             with ui.card():
-                ui.card_header("Select Filters")
+                ui.card_header("Select Filters", class_="fliter_box-css")
                 
              
                 with ui.card(class_="card_Filters"):
@@ -388,7 +399,7 @@ with ui.card():
 
 
 
-                    with ui.nav_panel("Percentage of Incidents"):
+                    with ui.nav_panel("Percentage of Incident Occurrence"):
 
 
 
@@ -475,7 +486,7 @@ with ui.card():
                             # Customize plot
                             plt.xticks(rotation=45, ha='right', fontsize=6)
                             plt.yticks(fontsize=8)
-                            plt.ylabel('Percentage of Incidents', fontsize=9)
+                            plt.ylabel('Percentage of Incident Occurrence', fontsize=9)
                             plt.tight_layout()
         
 
