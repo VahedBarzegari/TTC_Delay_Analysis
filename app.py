@@ -18,6 +18,7 @@ from shinywidgets import render_plotly, render_altair, render_widget
 import matplotlib.cm as cm
 import matplotlib.colors as mcolors
 
+
 from core_data_code import Bus_general_inf_dataframe, bus_df
 
 # ---- Global Styles ----
@@ -166,7 +167,7 @@ with ui.card():
         # Bus Tab
         with ui.nav_panel("Bus"):
 
-            with ui.card():
+            with ui.card(height="600px"):
                 
                 ui.card_header("General Information", class_="info-gen-css")
 
@@ -187,15 +188,20 @@ with ui.card():
                         @render.ui
                         def dynamic_content():
 
+
+                            total_incidents = len(bus_df)
+
                             return ui.TagList(
                                 ui.tags.ul(  # Unordered list for bullet points
-                                    ui.tags.li("All Delays equal to zero are removed from analys."),
-                                    ui.tags.li("All Delays greater than the 995th percentile are removed."),
+                                    ui.tags.li("Data from 2014 to the end of 2024 are assessed."),
+                                    ui.tags.li("All delays equal to zero are removed from analys."),
+                                    ui.tags.li("All delays greater than the 995th percentile are removed."),
+                                    ui.tags.li(f"Totla number of assessed incidents is {total_incidents}"),
                                     ui.tags.li("We only hold incidents related to routes that are active in 2025."),
                                     ui.tags.li("Location features are deleted as they are not consist of coordinates."),
                                     ui.tags.li("Some direction are labeled as Unknown as they were not entered correctly."),
                                     ui.tags.li("Iformation of December 2024 is not included in the databse."),
-                                    style="line-height: 3;"
+                                    style="line-height: 2.5;"
                                 ),
                                 ui.p("For list of active routes refer to: ", 
                                     ui.a("ttc.ca/routes/bus", href="https://www.ttc.ca/routes-and-schedules/listroutes/bus", target="_blank"))
@@ -338,7 +344,7 @@ with ui.card():
 
 
                                             plt.figure()  # Ensure a new figure is created
-                                            plt.plot(incident_counts.values, color='blue', marker='o', linestyle='-')
+                                            plt.plot(incident_counts.values, color='blue', marker='o', linestyle='')
                                             plt.xlabel('Date')
                                             plt.ylabel('Number of Delay Incidents per Date')
                                             plt.title('Total Number of Incidents')
@@ -362,7 +368,7 @@ with ui.card():
 
 
                                             plt.figure()  # Ensure a new figure is created
-                                            plt.plot(incident_counts.values, color='purple', marker='o', linestyle='-')
+                                            plt.plot(incident_counts.values, color='purple', marker='o', linestyle='')
                                             plt.xlabel('Date')
                                             plt.ylabel('Duration of Incidents per Date (min)')
                                             plt.title('Total Duration of Incidents')
@@ -380,96 +386,6 @@ with ui.card():
                                                 plt.xticks(selected_indices, selected_dates, rotation=0)
 
 
-
-                        with ui.nav_panel("Incident Type"):
-
-
-
-                
-                            @render.plot
-                            @reactive.event(input.apply_filters)
-                            def plot3():
-
-
-                                c = str(input.year())
-
-                                if 'All' in c:
-                                    bus_df1 = bus_df
-                                else:
-
-                                    c_tuple = ast.literal_eval(c)  # Convert string to tuple
-                                    b = [int(x) for x in c_tuple if x.isdigit()] 
-                                    bus_df1 = bus_df[bus_df['Year'].isin(b)]
-
-
-                                a = str(input.month())
-
-                                
-
-                                if 'All' in a:
-
-                                    d = str(input.season())
-
-                                    if 'All' in d:
-                                        bus_df1 = bus_df1
-
-                                    else:
-                                        d_tuple = ast.literal_eval(d)  # Convert string to tuple
-                                        d = [x for x in d_tuple] 
-                                        bus_df1 = bus_df1[bus_df1['Season'].isin(d)]
-
-
-                                else:
-                                    a_tuple = ast.literal_eval(a)  # Convert string to tuple
-                                    b = [x for x in a_tuple] 
-                                    bus_df1 = bus_df1[bus_df1['Month'].isin(b)]
-
-
-                                a = str(input.day()) 
-
-                                if 'All' in a:
-                                    bus_df1 = bus_df1
-                                else:
-                                    a_tuple = ast.literal_eval(a)  # Convert string to tuple
-                                    a = [x for x in a_tuple] 
-                                    bus_df1 = bus_df1[bus_df1['Day'].isin(a)]
-
-
-                                c = str(input.route())
-
-                                if 'All' in c:
-                                    bus_df1 = bus_df1
-                                else:
-
-                                    c_tuple = ast.literal_eval(c)  # Convert string to tuple
-                                    b = [int(x) for x in c_tuple if x.isdigit()] 
-                                    bus_df1 = bus_df1[bus_df1['Route'].isin(b)]
-
-                                print(bus_df1)
-                                # Count and calculate percentages
-                                incident_counts = bus_df1['Incident'].value_counts(normalize=True) * 100
-                                incident_counts = incident_counts.sort_values(ascending=False)
-
-                                
-
-                                # Normalize the values for colormap
-                                norm = mcolors.Normalize(vmin=incident_counts.min(), vmax=incident_counts.max())
-                                colors = [cm.Reds(norm(value)) for value in incident_counts.values]
-
-                                # Plot bar chart
-                                plt.figure()
-                                bars = plt.bar(incident_counts.index, incident_counts.values, color=colors)
-
-                                # Add percentage labels above each bar
-                                for bar, pct in zip(bars, incident_counts.values):
-                                    plt.text(bar.get_x() + bar.get_width()/2, bar.get_height(), f'{pct:.1f}%', 
-                                            ha='center', va='bottom', fontsize=8)
-
-                                # Customize plot
-                                plt.xticks(rotation=45, ha='right', fontsize=6)
-                                plt.yticks(fontsize=8)
-                                plt.ylabel('Percentage of Incident Occurrence', fontsize=9)
-                                plt.tight_layout()
 
 
 
@@ -727,6 +643,223 @@ with ui.card():
                                 
 
 
+
+                        with ui.nav_panel("Incident Type"):
+
+
+
+                
+                            @render.plot
+                            @reactive.event(input.apply_filters)
+                            def plot3():
+
+
+                                c = str(input.year())
+
+                                if 'All' in c:
+                                    bus_df1 = bus_df
+                                else:
+
+                                    c_tuple = ast.literal_eval(c)  # Convert string to tuple
+                                    b = [int(x) for x in c_tuple if x.isdigit()] 
+                                    bus_df1 = bus_df[bus_df['Year'].isin(b)]
+
+
+                                a = str(input.month())
+
+                                
+
+                                if 'All' in a:
+
+                                    d = str(input.season())
+
+                                    if 'All' in d:
+                                        bus_df1 = bus_df1
+
+                                    else:
+                                        d_tuple = ast.literal_eval(d)  # Convert string to tuple
+                                        d = [x for x in d_tuple] 
+                                        bus_df1 = bus_df1[bus_df1['Season'].isin(d)]
+
+
+                                else:
+                                    a_tuple = ast.literal_eval(a)  # Convert string to tuple
+                                    b = [x for x in a_tuple] 
+                                    bus_df1 = bus_df1[bus_df1['Month'].isin(b)]
+
+
+                                a = str(input.day()) 
+
+                                if 'All' in a:
+                                    bus_df1 = bus_df1
+                                else:
+                                    a_tuple = ast.literal_eval(a)  # Convert string to tuple
+                                    a = [x for x in a_tuple] 
+                                    bus_df1 = bus_df1[bus_df1['Day'].isin(a)]
+
+
+                                c = str(input.route())
+
+                                if 'All' in c:
+                                    bus_df1 = bus_df1
+                                else:
+
+                                    c_tuple = ast.literal_eval(c)  # Convert string to tuple
+                                    b = [int(x) for x in c_tuple if x.isdigit()] 
+                                    bus_df1 = bus_df1[bus_df1['Route'].isin(b)]
+
+                                                                
+
+                                # Count and calculate percentages
+                                incident_counts = bus_df1['Incident'].value_counts(normalize=True) * 100
+                                incident_counts = incident_counts.sort_values(ascending=False)
+
+                                # Normalize for colormap
+                                norm = mcolors.Normalize(vmin=incident_counts.min(), vmax=incident_counts.max())
+                                colors = [cm.Reds(norm(value)) for value in incident_counts.values]
+
+                                # Plot
+                                fig, ax = plt.subplots()
+                                bars = ax.bar(
+                                    incident_counts.index, 
+                                    incident_counts.values, 
+                                    color=colors, 
+                                    edgecolor='black',
+                                    linewidth=0.5
+                                )
+
+                                # Add percentage labels
+                                for bar, pct in zip(bars, incident_counts.values):
+                                    ax.text(
+                                        bar.get_x() + bar.get_width() / 2, 
+                                        bar.get_height() + 0.1, 
+                                        f'{pct:.2f}', 
+                                        ha='center', va='bottom', fontsize=9, fontweight='medium'
+                                    )
+
+                                # Customization
+                                ax.set_title('Percentage Distribution of Incident Types', fontsize=10, fontweight='bold', pad=5)
+                                ax.set_ylabel('Percentage of Incidents', fontsize=12)
+                                ax.set_xticklabels(incident_counts.index, rotation=30, ha='right', fontsize=9)
+                                ax.tick_params(axis='y', labelsize=9)
+                                ax.grid(axis='y', linestyle='--', alpha=0.4)
+                                fig.patch.set_facecolor('white')
+                                ax.set_facecolor('white')
+
+                                plt.tight_layout()
+             
+
+
+                        with ui.nav_panel("Direction"):
+
+
+
+                
+                            @render.plot
+                            @reactive.event(input.apply_filters)
+                            def plot_direction():
+
+
+                                c = str(input.year())
+
+                                if 'All' in c:
+                                    bus_df1 = bus_df
+                                else:
+
+                                    c_tuple = ast.literal_eval(c)  # Convert string to tuple
+                                    b = [int(x) for x in c_tuple if x.isdigit()] 
+                                    bus_df1 = bus_df[bus_df['Year'].isin(b)]
+
+
+                                a = str(input.month())
+
+                                
+
+                                if 'All' in a:
+
+                                    d = str(input.season())
+
+                                    if 'All' in d:
+                                        bus_df1 = bus_df1
+
+                                    else:
+                                        d_tuple = ast.literal_eval(d)  # Convert string to tuple
+                                        d = [x for x in d_tuple] 
+                                        bus_df1 = bus_df1[bus_df1['Season'].isin(d)]
+
+
+                                else:
+                                    a_tuple = ast.literal_eval(a)  # Convert string to tuple
+                                    b = [x for x in a_tuple] 
+                                    bus_df1 = bus_df1[bus_df1['Month'].isin(b)]
+
+
+                                a = str(input.day()) 
+
+                                if 'All' in a:
+                                    bus_df1 = bus_df1
+                                else:
+                                    a_tuple = ast.literal_eval(a)  # Convert string to tuple
+                                    a = [x for x in a_tuple] 
+                                    bus_df1 = bus_df1[bus_df1['Day'].isin(a)]
+
+
+                                c = str(input.route())
+
+                                if 'All' in c:
+                                    bus_df1 = bus_df1
+                                else:
+
+                                    c_tuple = ast.literal_eval(c)  # Convert string to tuple
+                                    b = [int(x) for x in c_tuple if x.isdigit()] 
+                                    bus_df1 = bus_df1[bus_df1['Route'].isin(b)]
+
+                                # Count occurrences of each direction
+                                direction_counts = bus_df1['Direction'].value_counts()
+
+                                percentages = 100 * direction_counts / direction_counts.sum()
+                                labels = direction_counts.index
+                                sizes = direction_counts.values
+
+                                # Format labels with percentages
+                                legend_labels = [f"{label}: {pct:.1f}%" for label, pct in zip(labels, percentages)]
+
+                                # Colors (custom pastel palette)
+                                colors = plt.cm.Paired.colors[:len(labels)]
+
+                                # Explode slightly for all slices
+                                explode = [0.05] * len(labels)
+
+                                # Plot
+                                fig, ax = plt.subplots()
+                                wedges, texts = ax.pie(
+                                    sizes,
+                                    labels=None,
+                                    startangle=90,
+                                    wedgeprops=dict(width=0.4, edgecolor='w'),
+                                    explode=explode,
+                                    colors=colors,
+                                    shadow=True
+                                )
+
+                                # Equal aspect ratio
+                                ax.axis('equal')
+
+                                # Legend at bottom
+                                ax.legend(
+                                    wedges, legend_labels,
+                                    
+                                    loc='lower center',
+                                    bbox_to_anchor=(0.5, -0.25),
+                                    ncol=3,
+                                    fontsize='medium',
+                                    title_fontsize='large',
+                                    frameon=False
+                                )
+
+                                # Title
+                                plt.title("Distribution of Incident Directions", fontsize=16, fontweight='bold')
+                                plt.tight_layout()
         # Streetcar Tab
         with ui.nav_panel("Streetcar"):
             ui.h5("Streetcar Data Coming Soon", class_="small-font")
