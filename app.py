@@ -203,10 +203,11 @@ with ui.card():
 
             ui.br()
 
+            
 
             with ui.layout_columns(col_widths={"sm": (3, 9)}):
 
-                with ui.card(height="500px", class_="card_Filters"):
+                with ui.card(height="200px", class_="card_Filters"):
                     ui.card_header("Select Filters", class_="fliter_box-css")
                     
             
@@ -251,6 +252,10 @@ with ui.card():
 
                     ui.input_action_button("apply_filters", "Apply Filters", class_="btn-primary")
 
+                    ui.input_radio_buttons(  
+                        "incident_tupe",  
+                        "",  
+                        {"1": "By the number of incidents", "2": "By the duration of incidents"}, selected="") 
 
         
 
@@ -261,7 +266,7 @@ with ui.card():
 
 
                                 @render.plot
-                                @reactive.event(input.apply_filters, input.date)
+                                @reactive.event(input.apply_filters, input.incident_tupe)
                                 def plot1():
 
                                     c = str(input.year())
@@ -320,12 +325,12 @@ with ui.card():
 
 
 
-                                    if not input.date() or input.date() == "":
+                                    if not input.incident_tupe() or input.incident_tupe() == "":
                                         return 
                                     
                                     else:
 
-                                        input_date_index = int(input.date())
+                                        input_date_index = int(input.incident_tupe())
 
                                         if input_date_index == 1:
                 
@@ -375,11 +380,6 @@ with ui.card():
                                                 plt.xticks(selected_indices, selected_dates, rotation=0)
 
 
-                                ui.input_radio_buttons(  
-                                "date",  
-                                "",  
-                                {"1": "By the number of incidents", "2": "By the duration of incidents"}, selected="") 
-                       
 
                         with ui.nav_panel("Incident Type"):
 
@@ -479,7 +479,7 @@ with ui.card():
 
                             
                             @render.plot
-                            @reactive.event(input.apply_filters, input.time)
+                            @reactive.event(input.apply_filters, input.incident_tupe)
                             def plot4():
 
 
@@ -538,12 +538,12 @@ with ui.card():
                                     bus_df1 = bus_df1[bus_df1['Route'].isin(b)]
 
 
-                                if not input.time() or input.time() == "":
+                                if not input.incident_tupe() or input.incident_tupe() == "":
                                     return 
                                 
                                 else:
 
-                                    input_time_index = int(input.time())
+                                    input_time_index = int(input.incident_tupe())
 
 
                                     if input_time_index == 1:
@@ -589,23 +589,18 @@ with ui.card():
                                         plt.xticks(incident_duration['Time'])
                                         plt.grid(axis='y', linestyle='--', alpha=0.7)
                                         plt.tight_layout()
-                                
-                            ui.input_radio_buttons(  
-                                "time",  
-                                "",  
-                                {"1": "By the number of incidents", "2": "By the duration of incidents"}, selected="") 
 
 
 
 
-                        with ui.nav_panel("Time of Day"):
+                        with ui.nav_panel("Day of Week"):
 
 
 
                             
                             @render.plot
-                            @reactive.event(input.apply_filters, input.time)
-                            def plot4():
+                            @reactive.event(input.apply_filters, input.incident_tupe)
+                            def plot5():
 
 
                                 c = str(input.year())
@@ -663,62 +658,73 @@ with ui.card():
                                     bus_df1 = bus_df1[bus_df1['Route'].isin(b)]
 
 
-                                if not input.time() or input.time() == "":
+                                if not input.incident_tupe() or input.incident_tupe() == "":
                                     return 
                                 
                                 else:
 
-                                    input_time_index = int(input.time())
+                                    input_day_index = int(input.incident_tupe())
 
 
-                                    if input_time_index == 1:
+                                    if input_day_index == 1:
 
 
                                         
-                                        incident_counts = bus_df1.groupby('Time').size().reset_index(name='Incident Count')
+                                        # Group by Day and count incidents
+                                        incident_counts = bus_df1.groupby('Day').size().reset_index(name='Incident Count')
+
+                                        # Define the correct weekday order
+                                        weekday_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+
+                                        # Convert 'Day' to an ordered categorical type and sort
+                                        incident_counts['Day'] = pd.Categorical(incident_counts['Day'], categories=weekday_order, ordered=True)
+                                        incident_counts = incident_counts.sort_values('Day')
 
                                         # Get the maximum incident count
                                         max_value = incident_counts['Incident Count'].max()
 
-                                        # Set colors: red for all max values, skyblue for others
+                                        # Set colors: red for max values, skyblue for others
                                         colors = ['red' if count == max_value else 'skyblue' for count in incident_counts['Incident Count']]
 
                                         # Plotting
                                         plt.figure(figsize=(8, 5))
-                                        plt.bar(incident_counts['Time'], incident_counts['Incident Count'], color=colors)
-                                        plt.xlabel('Time')
-                                        plt.ylabel('Number of Incidents')
-                                        plt.title('Total Number of Incidents per Time')
-                                        plt.xticks(incident_counts['Time'])
+                                        plt.bar(incident_counts['Day'], incident_counts['Incident Count'], color=colors)
+                                        plt.xlabel('Day')
+                                        plt.ylabel('Total Number of Incidents')
+                                        plt.title('Total Number of Incidents per Day')
+                                        plt.xticks(rotation=0)
                                         plt.grid(axis='y', linestyle='--', alpha=0.7)
                                         plt.tight_layout()
 
-                                    elif input_time_index==2:
+
+                                    elif input_day_index==2:
 
 
                                         # Group by Time and sum the durations
-                                        incident_duration = bus_df1.groupby('Time')['Min Delay'].sum().reset_index(name='Total Duration')
+                                        incident_duration = bus_df1.groupby('Day')['Min Delay'].sum().reset_index(name='Total Duration')
+                                        # Define correct weekday order
+                                        weekday_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 
-                                        # Get the maximum total duration
+                                        # Convert Day to ordered categorical and sort
+                                        incident_duration['Day'] = pd.Categorical(incident_duration['Day'], categories=weekday_order, ordered=True)
+                                        incident_duration = incident_duration.sort_values('Day')
+
+                                        # Get the maximum total duration *after sorting*
                                         max_duration = incident_duration['Total Duration'].max()
 
-                                        # Set colors: red for max values, skyblue otherwise
+                                        # Set colors based on sorted data
                                         colors = ['red' if dur == max_duration else 'skyblue' for dur in incident_duration['Total Duration']]
 
-                                        # Plotting
+                                        # Plot
                                         plt.figure(figsize=(8, 5))
-                                        plt.bar(incident_duration['Time'], incident_duration['Total Duration'], color=colors)
-                                        plt.xlabel('Time')
+                                        plt.bar(incident_duration['Day'], incident_duration['Total Duration'], color=colors)
+                                        plt.xlabel('Day')
                                         plt.ylabel('Total Duration of Incidents')
-                                        plt.title('Total Duration of Incidents per Time')
-                                        plt.xticks(incident_duration['Time'])
+                                        plt.title('Total Duration of Incidents per Day')
+                                        plt.xticks(rotation=0)
                                         plt.grid(axis='y', linestyle='--', alpha=0.7)
                                         plt.tight_layout()
                                 
-                            ui.input_radio_buttons(  
-                                "time",  
-                                "",  
-                                {"1": "By the number of incidents", "2": "By the duration of incidents"}, selected="") 
 
 
         # Streetcar Tab
