@@ -206,7 +206,7 @@ with ui.card():
 
             with ui.layout_columns(col_widths={"sm": (3, 9)}):
 
-                with ui.card(class_="card_Filters", height="500px"):
+                with ui.card(height="500px", class_="card_Filters"):
                     ui.card_header("Select Filters", class_="fliter_box-css")
                     
             
@@ -255,13 +255,13 @@ with ui.card():
         
 
                 with ui.navset_card_tab(id="tab1"):
-                        with ui.nav_panel("Number of Incidents per Day"):
+                        with ui.nav_panel("Date"):
 
 
 
 
                                 @render.plot
-                                @reactive.event(input.apply_filters)
+                                @reactive.event(input.apply_filters, input.date)
                                 def plot1():
 
                                     c = str(input.year())
@@ -320,118 +320,68 @@ with ui.card():
 
 
 
-
-            
-                                    incident_counts = bus_df1.groupby('Date').size()
-
-
-                                    plt.figure()  # Ensure a new figure is created
-                                    plt.plot(incident_counts.values, color='blue', marker='o', linestyle='-')
-                                    plt.xlabel('Date')
-                                    plt.ylabel('Number of Incidents per Day')
-                                    plt.grid(axis='y', linestyle='--', alpha=0.7)
-
-                                    # Handling x-ticks dynamically
-                                    dates = incident_counts.index
-                                    num_dates = len(dates)
-
-                                    if num_dates <= 20:
-                                        plt.xticks(range(num_dates), dates, rotation=30)
-                                    else:
-                                        selected_indices = [0, num_dates // 2, num_dates - 1]
-                                        selected_dates = [dates[i] for i in selected_indices]
-                                        plt.xticks(selected_indices, selected_dates, rotation=0)
-
-                        with ui.nav_panel("Duration of Delays per Day"):
-
-
-
-
-                                @render.plot
-                                @reactive.event(input.apply_filters)
-                                def plot2():
-
-                                    c = str(input.year())
-
-                                    if 'All' in c:
-                                        bus_df1 = bus_df
-                                    else:
-
-                                        c_tuple = ast.literal_eval(c)  # Convert string to tuple
-                                        b = [int(x) for x in c_tuple if x.isdigit()] 
-                                        bus_df1 = bus_df[bus_df['Year'].isin(b)]
-
-
-                                    a = str(input.month())
-
+                                    if not input.date() or input.date() == "":
+                                        return 
                                     
-
-                                    if 'All' in a:
-
-                                        d = str(input.season())
-
-                                        if 'All' in d:
-                                            bus_df1 = bus_df1
-
-                                        else:
-                                            d_tuple = ast.literal_eval(d)  # Convert string to tuple
-                                            d = [x for x in d_tuple] 
-                                            bus_df1 = bus_df1[bus_df1['Season'].isin(d)]
-
-
-                                    else:
-                                        a_tuple = ast.literal_eval(a)  # Convert string to tuple
-                                        b = [x for x in a_tuple] 
-                                        bus_df1 = bus_df1[bus_df1['Month'].isin(b)]
-
-
-                                    a = str(input.day()) 
-
-                                    if 'All' in a:
-                                        bus_df1 = bus_df1
-                                    else:
-                                        a_tuple = ast.literal_eval(a)  # Convert string to tuple
-                                        a = [x for x in a_tuple] 
-                                        bus_df1 = bus_df1[bus_df1['Day'].isin(a)]
-
-
-                                    c = str(input.route())
-
-                                    if 'All' in c:
-                                        bus_df1 = bus_df1
                                     else:
 
-                                        c_tuple = ast.literal_eval(c)  # Convert string to tuple
-                                        b = [int(x) for x in c_tuple if x.isdigit()] 
-                                        bus_df1 = bus_df1[bus_df1['Route'].isin(b)]
+                                        input_date_index = int(input.date())
+
+                                        if input_date_index == 1:
+                
+                                            incident_counts = bus_df1.groupby('Date').size()
 
 
+                                            plt.figure()  # Ensure a new figure is created
+                                            plt.plot(incident_counts.values, color='blue', marker='o', linestyle='-')
+                                            plt.xlabel('Date')
+                                            plt.ylabel('Number of Delay Incidents per Date')
+                                            plt.title('Total Number of Incidents')
+                                            plt.grid(axis='y', linestyle='--', alpha=0.7)
+
+                                            # Handling x-ticks dynamically
+                                            dates = incident_counts.index
+                                            num_dates = len(dates)
+
+                                            if num_dates <= 20:
+                                                plt.xticks(range(num_dates), dates, rotation=30)
+                                            else:
+                                                selected_indices = [0, num_dates // 2, num_dates - 1]
+                                                selected_dates = [dates[i] for i in selected_indices]
+                                                plt.xticks(selected_indices, selected_dates, rotation=0)
 
 
-            
-                                    incident_counts = bus_df1.groupby('Date')['Min Delay'].sum()
+                                        elif input_date_index == 2:
+
+                                            incident_counts = bus_df1.groupby('Date')['Min Delay'].sum()
 
 
-                                    plt.figure()  # Ensure a new figure is created
-                                    plt.plot(incident_counts.values, color='purple', marker='o', linestyle='-')
-                                    plt.xlabel('Date')
-                                    plt.ylabel('Duration of Delays per Day (min)')
-                                    plt.grid(axis='y', linestyle='--', alpha=0.7)
+                                            plt.figure()  # Ensure a new figure is created
+                                            plt.plot(incident_counts.values, color='purple', marker='o', linestyle='-')
+                                            plt.xlabel('Date')
+                                            plt.ylabel('Duration of Incidents per Date (min)')
+                                            plt.title('Total Duration of Incidents')
+                                            plt.grid(axis='y', linestyle='--', alpha=0.7)
 
-                                    # Handling x-ticks dynamically
-                                    dates = incident_counts.index
-                                    num_dates = len(dates)
+                                            # Handling x-ticks dynamically
+                                            dates = incident_counts.index
+                                            num_dates = len(dates)
 
-                                    if num_dates <= 20:
-                                        plt.xticks(range(num_dates), dates, rotation=30)
-                                    else:
-                                        selected_indices = [0, num_dates // 2, num_dates - 1]
-                                        selected_dates = [dates[i] for i in selected_indices]
-                                        plt.xticks(selected_indices, selected_dates, rotation=0)
+                                            if num_dates <= 20:
+                                                plt.xticks(range(num_dates), dates, rotation=30)
+                                            else:
+                                                selected_indices = [0, num_dates // 2, num_dates - 1]
+                                                selected_dates = [dates[i] for i in selected_indices]
+                                                plt.xticks(selected_indices, selected_dates, rotation=0)
 
 
+                                ui.input_radio_buttons(  
+                                "date",  
+                                "",  
+                                {"1": "By the number of incidents", "2": "By the duration of incidents"}, selected="") 
+                       
 
-                        with ui.nav_panel("Percentage of Incident Occurrence"):
+                        with ui.nav_panel("Incident Type"):
 
 
 
@@ -523,13 +473,13 @@ with ui.card():
 
 
 
-                        with ui.nav_panel("Time"):
+                        with ui.nav_panel("Time of Day"):
 
 
 
-                
+                            
                             @render.plot
-                            @reactive.event(input.apply_filters)
+                            @reactive.event(input.apply_filters, input.time)
                             def plot4():
 
 
@@ -587,25 +537,190 @@ with ui.card():
                                     b = [int(x) for x in c_tuple if x.isdigit()] 
                                     bus_df1 = bus_df1[bus_df1['Route'].isin(b)]
 
-                
+
+                                if not input.time() or input.time() == "":
+                                    return 
                                 
-                                incident_counts = bus_df1.groupby('Time').size().reset_index(name='Incident Count')
+                                else:
 
-                                # Get the maximum incident count
-                                max_value = incident_counts['Incident Count'].max()
+                                    input_time_index = int(input.time())
 
-                                # Set colors: red for all max values, skyblue for others
-                                colors = ['red' if count == max_value else 'skyblue' for count in incident_counts['Incident Count']]
 
-                                # Plotting
-                                plt.figure(figsize=(8, 5))
-                                plt.bar(incident_counts['Time'], incident_counts['Incident Count'], color=colors)
-                                plt.xlabel('Time')
-                                plt.ylabel('Number of Incidents')
-                                plt.title('Number of Incidents by Time')
-                                plt.xticks(incident_counts['Time'])
-                                plt.grid(axis='y', linestyle='--', alpha=0.7)
-                                plt.tight_layout()
+                                    if input_time_index == 1:
+
+
+                                        
+                                        incident_counts = bus_df1.groupby('Time').size().reset_index(name='Incident Count')
+
+                                        # Get the maximum incident count
+                                        max_value = incident_counts['Incident Count'].max()
+
+                                        # Set colors: red for all max values, skyblue for others
+                                        colors = ['red' if count == max_value else 'skyblue' for count in incident_counts['Incident Count']]
+
+                                        # Plotting
+                                        plt.figure(figsize=(8, 5))
+                                        plt.bar(incident_counts['Time'], incident_counts['Incident Count'], color=colors)
+                                        plt.xlabel('Time')
+                                        plt.ylabel('Number of Incidents')
+                                        plt.title('Total Number of Incidents per Time')
+                                        plt.xticks(incident_counts['Time'])
+                                        plt.grid(axis='y', linestyle='--', alpha=0.7)
+                                        plt.tight_layout()
+
+                                    elif input_time_index==2:
+
+
+                                        # Group by Time and sum the durations
+                                        incident_duration = bus_df1.groupby('Time')['Min Delay'].sum().reset_index(name='Total Duration')
+
+                                        # Get the maximum total duration
+                                        max_duration = incident_duration['Total Duration'].max()
+
+                                        # Set colors: red for max values, skyblue otherwise
+                                        colors = ['red' if dur == max_duration else 'skyblue' for dur in incident_duration['Total Duration']]
+
+                                        # Plotting
+                                        plt.figure(figsize=(8, 5))
+                                        plt.bar(incident_duration['Time'], incident_duration['Total Duration'], color=colors)
+                                        plt.xlabel('Time')
+                                        plt.ylabel('Total Duration of Incidents')
+                                        plt.title('Total Duration of Incidents per Time')
+                                        plt.xticks(incident_duration['Time'])
+                                        plt.grid(axis='y', linestyle='--', alpha=0.7)
+                                        plt.tight_layout()
+                                
+                            ui.input_radio_buttons(  
+                                "time",  
+                                "",  
+                                {"1": "By the number of incidents", "2": "By the duration of incidents"}, selected="") 
+
+
+
+
+                        with ui.nav_panel("Time of Day"):
+
+
+
+                            
+                            @render.plot
+                            @reactive.event(input.apply_filters, input.time)
+                            def plot4():
+
+
+                                c = str(input.year())
+
+                                if 'All' in c:
+                                    bus_df1 = bus_df
+                                else:
+
+                                    c_tuple = ast.literal_eval(c)  # Convert string to tuple
+                                    b = [int(x) for x in c_tuple if x.isdigit()] 
+                                    bus_df1 = bus_df[bus_df['Year'].isin(b)]
+
+
+                                a = str(input.month())
+
+                                
+
+                                if 'All' in a:
+
+                                    d = str(input.season())
+
+                                    if 'All' in d:
+                                        bus_df1 = bus_df1
+
+                                    else:
+                                        d_tuple = ast.literal_eval(d)  # Convert string to tuple
+                                        d = [x for x in d_tuple] 
+                                        bus_df1 = bus_df1[bus_df1['Season'].isin(d)]
+
+
+                                else:
+                                    a_tuple = ast.literal_eval(a)  # Convert string to tuple
+                                    b = [x for x in a_tuple] 
+                                    bus_df1 = bus_df1[bus_df1['Month'].isin(b)]
+
+
+                                a = str(input.day()) 
+
+                                if 'All' in a:
+                                    bus_df1 = bus_df1
+                                else:
+                                    a_tuple = ast.literal_eval(a)  # Convert string to tuple
+                                    a = [x for x in a_tuple] 
+                                    bus_df1 = bus_df1[bus_df1['Day'].isin(a)]
+
+
+                                c = str(input.route())
+
+                                if 'All' in c:
+                                    bus_df1 = bus_df1
+                                else:
+
+                                    c_tuple = ast.literal_eval(c)  # Convert string to tuple
+                                    b = [int(x) for x in c_tuple if x.isdigit()] 
+                                    bus_df1 = bus_df1[bus_df1['Route'].isin(b)]
+
+
+                                if not input.time() or input.time() == "":
+                                    return 
+                                
+                                else:
+
+                                    input_time_index = int(input.time())
+
+
+                                    if input_time_index == 1:
+
+
+                                        
+                                        incident_counts = bus_df1.groupby('Time').size().reset_index(name='Incident Count')
+
+                                        # Get the maximum incident count
+                                        max_value = incident_counts['Incident Count'].max()
+
+                                        # Set colors: red for all max values, skyblue for others
+                                        colors = ['red' if count == max_value else 'skyblue' for count in incident_counts['Incident Count']]
+
+                                        # Plotting
+                                        plt.figure(figsize=(8, 5))
+                                        plt.bar(incident_counts['Time'], incident_counts['Incident Count'], color=colors)
+                                        plt.xlabel('Time')
+                                        plt.ylabel('Number of Incidents')
+                                        plt.title('Total Number of Incidents per Time')
+                                        plt.xticks(incident_counts['Time'])
+                                        plt.grid(axis='y', linestyle='--', alpha=0.7)
+                                        plt.tight_layout()
+
+                                    elif input_time_index==2:
+
+
+                                        # Group by Time and sum the durations
+                                        incident_duration = bus_df1.groupby('Time')['Min Delay'].sum().reset_index(name='Total Duration')
+
+                                        # Get the maximum total duration
+                                        max_duration = incident_duration['Total Duration'].max()
+
+                                        # Set colors: red for max values, skyblue otherwise
+                                        colors = ['red' if dur == max_duration else 'skyblue' for dur in incident_duration['Total Duration']]
+
+                                        # Plotting
+                                        plt.figure(figsize=(8, 5))
+                                        plt.bar(incident_duration['Time'], incident_duration['Total Duration'], color=colors)
+                                        plt.xlabel('Time')
+                                        plt.ylabel('Total Duration of Incidents')
+                                        plt.title('Total Duration of Incidents per Time')
+                                        plt.xticks(incident_duration['Time'])
+                                        plt.grid(axis='y', linestyle='--', alpha=0.7)
+                                        plt.tight_layout()
+                                
+                            ui.input_radio_buttons(  
+                                "time",  
+                                "",  
+                                {"1": "By the number of incidents", "2": "By the duration of incidents"}, selected="") 
+
+
         # Streetcar Tab
         with ui.nav_panel("Streetcar"):
             ui.h5("Streetcar Data Coming Soon", class_="small-font")
