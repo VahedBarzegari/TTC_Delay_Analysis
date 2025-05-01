@@ -463,12 +463,12 @@ with ui.card():
                                 b = [int(x) for x in c_tuple if x.isdigit()] 
                                 bus_df1 = bus_df1[bus_df1['Route'].isin(b)]
 
-
+                            print(bus_df1)
                             # Count and calculate percentages
                             incident_counts = bus_df1['Incident'].value_counts(normalize=True) * 100
                             incident_counts = incident_counts.sort_values(ascending=False)
 
-                            print(incident_counts)
+                            
 
                             # Normalize the values for colormap
                             norm = mcolors.Normalize(vmin=incident_counts.min(), vmax=incident_counts.max())
@@ -488,10 +488,92 @@ with ui.card():
                             plt.yticks(fontsize=8)
                             plt.ylabel('Percentage of Incident Occurrence', fontsize=9)
                             plt.tight_layout()
-        
+
+
+
+                    with ui.nav_panel("Time"):
+
+
 
             
+                        @render.plot
+                        @reactive.event(input.apply_filters)
+                        def plot4():
 
+
+                            c = str(input.year())
+
+                            if 'All' in c:
+                                bus_df1 = bus_df
+                            else:
+
+                                c_tuple = ast.literal_eval(c)  # Convert string to tuple
+                                b = [int(x) for x in c_tuple if x.isdigit()] 
+                                bus_df1 = bus_df[bus_df['Year'].isin(b)]
+
+
+                            a = str(input.month())
+
+                            
+
+                            if 'All' in a:
+
+                                d = str(input.season())
+
+                                if 'All' in d:
+                                    bus_df1 = bus_df1
+
+                                else:
+                                    d_tuple = ast.literal_eval(d)  # Convert string to tuple
+                                    d = [x for x in d_tuple] 
+                                    bus_df1 = bus_df1[bus_df1['Season'].isin(d)]
+
+
+                            else:
+                                a_tuple = ast.literal_eval(a)  # Convert string to tuple
+                                b = [x for x in a_tuple] 
+                                bus_df1 = bus_df1[bus_df1['Month'].isin(b)]
+
+
+                            a = str(input.day()) 
+
+                            if 'All' in a:
+                                bus_df1 = bus_df1
+                            else:
+                                a_tuple = ast.literal_eval(a)  # Convert string to tuple
+                                a = [x for x in a_tuple] 
+                                bus_df1 = bus_df1[bus_df1['Day'].isin(a)]
+
+
+                            c = str(input.route())
+
+                            if 'All' in c:
+                                bus_df1 = bus_df1
+                            else:
+
+                                c_tuple = ast.literal_eval(c)  # Convert string to tuple
+                                b = [int(x) for x in c_tuple if x.isdigit()] 
+                                bus_df1 = bus_df1[bus_df1['Route'].isin(b)]
+
+            
+                            
+                            incident_counts = bus_df1.groupby('Time').size().reset_index(name='Incident Count')
+
+                            # Get the maximum incident count
+                            max_value = incident_counts['Incident Count'].max()
+
+                            # Set colors: red for all max values, skyblue for others
+                            colors = ['red' if count == max_value else 'skyblue' for count in incident_counts['Incident Count']]
+
+                            # Plotting
+                            plt.figure(figsize=(8, 5))
+                            plt.bar(incident_counts['Time'], incident_counts['Incident Count'], color=colors)
+                            plt.xlabel('Time')
+                            plt.ylabel('Number of Incidents')
+                            plt.title('Number of Incidents by Time')
+                            plt.xticks(incident_counts['Time'])
+                            plt.grid(axis='y', linestyle='--', alpha=0.7)
+                            plt.tight_layout()
         # Streetcar Tab
         with ui.nav_panel("Streetcar"):
             ui.h5("Streetcar Data Coming Soon", class_="small-font")
