@@ -111,7 +111,7 @@ ui.markdown(
             font-weight: bold !important; /* Makes the text bold */
             background-color: purple !important;
         }
-        .explnation_title-css {
+        .insight_title-css {
             font-size: 16px !important; /* Adjust the size as needed */
             color: white !important;
             display: flex !important; /* Enables centering */
@@ -173,39 +173,109 @@ with ui.card():
 
                 with ui.layout_columns(col_widths={"sm": (4, 8)}):
 
-
+                    
                     with ui.card(class_="card_Insights"):
-                        ui.card_header("Insights")
+                        ui.card_header("Insights", class_="insight_title-css")
 
                         @render.data_frame  
-                        def penguins_df():
+                        def insights_df():
                             return render.DataGrid(Bus_general_inf_dataframe, selection_mode="row")  
 
-                    with ui.card(class_="card_Explanation"):
-                        ui.card_header("Explanation", class_="explnation_title-css")
+                    with ui.card():
+                        with ui.navset_pill(id="tab2"): 
+
+                            with ui.nav_panel("Explanation"):
+
+                                @render.ui
+                                def dynamic_content():
+                                    total_incidents = len(bus_df)
+
+                                    return ui.TagList(
+                                        ui.div(  # Add border wrapper
+                                            ui.tags.ul(
+                                                [
+                                                    ui.tags.li(ui.HTML("Data from <span style='text-decoration: underline; color:blue;'>2014</span> to the end of <span style='text-decoration: underline;color:blue;'>2024</span> are assessed.")),
+                                                    ui.tags.li("All delays equal to zero are removed from analysis."),
+                                                    ui.tags.li(ui.HTML("All delays greater than the <span style='text-decoration: underline;color: blue;'>995th</span> percentile are removed.")),
+                                                    ui.tags.li(ui.HTML(f"Total number of assessed incidents is <span style='text-decoration: underline; color:blue;'>{total_incidents}</span>.")),
+                                                    ui.tags.li(ui.HTML("We only hold incidents related to routes that are active in <span style='color: blue; text-decoration: underline;'>2025</span>.")),
+                                                    ui.tags.li("Location features are deleted as they are not consist of coordinates."),
+                                                    ui.tags.li(ui.HTML("Some direction were not entered correctly and labeled as <b><i><span style='color:red;'>Unknown</span></i></b>.")),
+                                                    ui.tags.li(ui.HTML("Data of December <span style='text-decoration: underline; color:blue;'>2024</span> was not included in the databse.")),
+                                                    ui.tags.li([
+                                                        "For list of active routes refer to: ",
+                                                        ui.a("ttc.ca/routes/bus", href="https://www.ttc.ca/routes-and-schedules/listroutes/bus", target="_blank")
+                                                    ])
+                                                ],
+                                                style="line-height: 2.5;"
+                                            ),
+                                            style="border: 2px solid #ccc; padding: 0px !important; border-radius: 30px; margin-top: 0px !important;"
+                                        )
+                                    )
+
+                            with ui.nav_panel("Worst Routes"):
+                             
+
+                                @render.data_frame  
+                                def worst_routes_df():
+
+                                    # Group by Year and Route to get counts and delay sums
+                                    summary = bus_df.groupby(['Year', 'Route']).agg(
+                                        incident_count=('Route', 'count'),
+                                        total_delay=('Min Delay', 'sum')
+                                    ).reset_index()
+
+                                    # For each year, find the route with max incidents
+                                    worst_by_incidents = summary.loc[summary.groupby('Year')['incident_count'].idxmax()]
+
+                                    # For each year, find the route with max total delay
+                                    worst_by_delay = summary.loc[summary.groupby('Year')['total_delay'].idxmax()]
+
+                                    # Merge the two summaries (optional)
+                                    result = worst_by_incidents.merge(
+                                        worst_by_delay,
+                                        on='Year',
+                                        suffixes=('_most_incidents', '_most_delay')
+                                    )
+                                    result = result.drop(['incident_count_most_incidents', 'total_delay_most_incidents', 'incident_count_most_delay', 'total_delay_most_delay'], axis=1)
+
+                                    result = result.rename(columns={'Route_most_incidents': 'Route with the highest incident occurrence', 'Route_most_delay': 'Route with the highest total delay'})
 
 
-                        @render.ui
-                        def dynamic_content():
+                            
+                                    return render.DataGrid(result, selection_mode="row")  
 
 
-                            total_incidents = len(bus_df)
+                            with ui.nav_panel("Year Comparasion"):
 
-                            return ui.TagList(
-                                ui.tags.ul(  # Unordered list for bullet points
-                                    ui.tags.li("Data from 2014 to the end of 2024 are assessed."),
-                                    ui.tags.li("All delays equal to zero are removed from analys."),
-                                    ui.tags.li("All delays greater than the 995th percentile are removed."),
-                                    ui.tags.li(f"Totla number of assessed incidents is {total_incidents}"),
-                                    ui.tags.li("We only hold incidents related to routes that are active in 2025."),
-                                    ui.tags.li("Location features are deleted as they are not consist of coordinates."),
-                                    ui.tags.li("Some direction are labeled as Unknown as they were not entered correctly."),
-                                    ui.tags.li("Iformation of December 2024 is not included in the databse."),
-                                    style="line-height: 2.5;"
-                                ),
-                                ui.p("For list of active routes refer to: ", 
-                                    ui.a("ttc.ca/routes/bus", href="https://www.ttc.ca/routes-and-schedules/listroutes/bus", target="_blank"))
-                            )
+                                @render.plot
+
+                                def yearplot_com():
+
+                                    # Set Seaborn style
+                                    sns.set(style="whitegrid")
+
+                                    # Group and prepare data
+                                    delay_per_year = bus_df.groupby('Year')['Min Delay'].sum().reset_index()
+
+                                    # Plot
+                                    plt.figure(figsize=(8, 4))
+                                    line = plt.plot(delay_per_year['Year'], delay_per_year['Min Delay'],
+                                                    marker='o', color='#1f77b4', linewidth=2.5, label='Total Min Delay')
+
+                                
+                                    # Titles and labels
+                                    
+                                    plt.xlabel('Year', fontsize=10)
+                                    plt.ylabel('Total Duration of Delays (minutes)', fontsize=10)
+                                    plt.xticks(delay_per_year['Year'])  # Ensure all years are shown
+                                    plt.grid(alpha=0.3)
+
+                                 
+
+                                    plt.tight_layout()
+
+                             
 
             ui.br()
 
@@ -462,51 +532,122 @@ with ui.card():
                                     input_time_index = int(input.incident_tupe())
 
 
-                                    if input_time_index == 1:
 
+                                    if input_time_index == 1:
+                                        incident_counts = bus_df1.groupby('Time').size().reset_index(name='Incident Count')
+                                        labels = incident_counts['Time'].astype(str).tolist()
+                                        values = incident_counts['Incident Count'].tolist()
+
+                                        # Close the loop
+                                        values += values[:1]
+                                        labels += labels[:1]
+
+                                        # Angles
+                                        angles = np.linspace(0, 2 * np.pi, len(values), endpoint=True)
+
+                                        # Set up figure and axis
+                                        fig, ax = plt.subplots( subplot_kw=dict(polar=True))
+                                        # Plot and fill
+                                        ax.plot(angles, values, color='navy', linewidth=2)
+                                        ax.fill(angles, values, color='skyblue', alpha=0.4)
+
+                                        # Set x-axis (time) labels
+                                        ax.set_xticks(angles[:-1])
+                                        ax.set_xticklabels([''] * len(labels[:-1]))  # Hide default labels
+
+                                        # Custom label positioning
+                                        label_distance = max(values) * 1.1  # adjust 1.1 to increase/decrease distance
+                                        for angle, label in zip(angles[:-1], labels[:-1]):
+                                            ax.text(angle, label_distance, label, ha='center', va='center', fontsize=8)
 
                                         
-                                        incident_counts = bus_df1.groupby('Time').size().reset_index(name='Incident Count')
+                                        # Create custom radial grid lines
+                                        max_val = max(values)
+                                        num_rings = 4
+                                        ring_vals = np.linspace(0, max_val, num_rings + 1)[1:]
 
-                                        # Get the maximum incident count
-                                        max_value = incident_counts['Incident Count'].max()
+                                        ring_colors = ['#77f571', '#28ded8', '#ed921a', '#ed1e1a']  # light to dark blue
+                                        for r_val, color in zip(ring_vals, ring_colors):
+                                            ax.plot(np.linspace(0, 2 * np.pi, 100), [r_val] * 100, linestyle='--', color=color, linewidth=0.8)
 
-                                        # Set colors: red for all max values, skyblue for others
-                                        colors = ['red' if count == max_value else 'skyblue' for count in incident_counts['Incident Count']]
+                                        # Hide default y-tick labels
+                                        ax.set_yticklabels([])
 
-                                        # Plotting
-                                        plt.figure(figsize=(8, 5))
-                                        plt.bar(incident_counts['Time'], incident_counts['Incident Count'], color=colors)
-                                        plt.xlabel('Time')
-                                        plt.ylabel('Number of Incidents')
-                                        plt.title('Total Number of Incidents per Time')
-                                        plt.xticks(incident_counts['Time'])
-                                        plt.grid(axis='y', linestyle='--', alpha=0.7)
+                                        # Add custom legend for circle levels
+                                        from matplotlib.lines import Line2D
+                                        legend_handles = [Line2D([0], [0], color=color, lw=1.5, linestyle='--', label=f"{int(r_val)}") 
+                                                        for r_val, color in zip(ring_vals, ring_colors)]
+                                        ax.legend(handles=legend_handles, title="Circle Values", loc='upper left', bbox_to_anchor=(1.05, 1), fontsize=8, title_fontsize=9)
+
+                                        # Title
+
+
+
+
+                                       # Title and layout
+                                        ax.set_title('Total Number of Incidents per Time', fontsize=9, fontweight='bold', pad=15)
+                                        # Show only radial grid lines (concentric circles)
+                                        ax.yaxis.grid(False)
+                                        ax.xaxis.grid(True)
                                         plt.tight_layout()
 
-                                    elif input_time_index==2:
-
-
-                                        # Group by Time and sum the durations
+                                    elif input_time_index == 2:
                                         incident_duration = bus_df1.groupby('Time')['Min Delay'].sum().reset_index(name='Total Duration')
+                                        labels = incident_duration['Time'].astype(str).tolist()
+                                        values = incident_duration['Total Duration'].tolist()
 
-                                        # Get the maximum total duration
-                                        max_duration = incident_duration['Total Duration'].max()
 
-                                        # Set colors: red for max values, skyblue otherwise
-                                        colors = ['red' if dur == max_duration else 'skyblue' for dur in incident_duration['Total Duration']]
+                                        # Close the loop
+                                        values += values[:1]
+                                        labels += labels[:1]
 
-                                        # Plotting
-                                        plt.figure(figsize=(8, 5))
-                                        plt.bar(incident_duration['Time'], incident_duration['Total Duration'], color=colors)
-                                        plt.xlabel('Time')
-                                        plt.ylabel('Total Duration of Incidents')
-                                        plt.title('Total Duration of Incidents per Time')
-                                        plt.xticks(incident_duration['Time'])
-                                        plt.grid(axis='y', linestyle='--', alpha=0.7)
+                                        # Angles
+                                        angles = np.linspace(0, 2 * np.pi, len(values), endpoint=True)
+
+                                        # Set up figure and axis
+                                        fig, ax = plt.subplots( subplot_kw=dict(polar=True))
+                                        # Plot and fill
+                                        ax.plot(angles, values, color='navy', linewidth=2)
+                                        ax.fill(angles, values, color='skyblue', alpha=0.4)
+
+                                        # Set x-axis (time) labels
+                                        ax.set_xticks(angles[:-1])
+                                        ax.set_xticklabels([''] * len(labels[:-1]))  # Hide default labels
+
+                                        # Custom label positioning
+                                        label_distance = max(values) * 1.1  # adjust 1.1 to increase/decrease distance
+                                        for angle, label in zip(angles[:-1], labels[:-1]):
+                                            ax.text(angle, label_distance, label, ha='center', va='center', fontsize=8)
+
+                                        
+                                        # Create custom radial grid lines
+                                        max_val = max(values)
+                                        num_rings = 4
+                                        ring_vals = np.linspace(0, max_val, num_rings + 1)[1:]
+
+                                        ring_colors = ['#77f571', '#28ded8', '#ed921a', '#ed1e1a']  # light to dark blue
+                                        for r_val, color in zip(ring_vals, ring_colors):
+                                            ax.plot(np.linspace(0, 2 * np.pi, 100), [r_val] * 100, linestyle='--', color=color, linewidth=0.8)
+
+                                        # Hide default y-tick labels
+                                        ax.set_yticklabels([])
+
+                                        # Add custom legend for circle levels
+                                        from matplotlib.lines import Line2D
+                                        legend_handles = [Line2D([0], [0], color=color, lw=1.5, linestyle='--', label=f"{int(r_val)}") 
+                                                        for r_val, color in zip(ring_vals, ring_colors)]
+                                        ax.legend(handles=legend_handles, title="Circle Values", loc='upper left', bbox_to_anchor=(1.05, 1), fontsize=8, title_fontsize=9)
+
+                                        # Title
+
+
+                                       # Title and layout
+                                        ax.set_title('Total Duration of Incidents per Time', fontsize=9, fontweight='bold', pad=15)
+                                        # Show only radial grid lines (concentric circles)
+                                        ax.yaxis.grid(False)
+                                        ax.xaxis.grid(True)
                                         plt.tight_layout()
-
-
+    
 
 
                         with ui.nav_panel("Day of Week"):

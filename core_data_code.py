@@ -26,7 +26,7 @@ desc = bus_df['Min Delay'].describe()
 
 # Create a DataFrame from describe values
 df2 = pd.DataFrame({
-    "Title": ["No. of Delays", "Delay-Mean", "Delay-Std", "Delay-Min", "2Delay-5%", "Delay-50%", "Delay-75%", "Delay-Max"],
+    "Title": ["No. of Incidents", "Delay-Mean", "Delay-Std", "Delay-Min", "Delay-25%", "Delay-50%", "Delay-75%", "Delay-Max"],
     "Value": [int(desc["count"]), int(desc["mean"]), int(desc["std"]), int(desc["min"]), int(desc["25%"]), int(desc["50%"]), int(desc["75%"]), int(desc["max"])]
 })
 
