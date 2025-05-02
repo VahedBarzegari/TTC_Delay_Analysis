@@ -149,6 +149,8 @@ added_routes = [149, 154, 160, 161, 162, 165, 167, 168, 169, 171, 185, 189, 300,
 busroutes_number = filtered_numbers + added_routes
 
 
+streetcarroutes_number = [501, 503, 504, 505, 506, 509, 510, 511, 512, 507, 301, 303, 304, 305, 306, 310, 312]
+
 # ---- Header ----
 with ui.div(class_="header-container"):
     with ui.div(class_="logo-container"):
@@ -1114,6 +1116,383 @@ with ui.card():
                                     plt.tight_layout()
 
 
+
+            ui.br()
+
+
+
+           
+
+            with ui.layout_columns(col_widths={"sm": (3, 9)}):
+
+                with ui.card(height="200px", class_="card_Filters"):
+                    ui.card_header("Select Filters", class_="fliter_box-css")
+                    
+            
+
+                
+                    with ui.accordion(id="acc_street",open=[]):
+
+                        with ui.accordion_panel("Year"):
+                            ui.input_select(
+                                "year_stre", "",
+                                ["All"] + [str(y) for y in range(2014, 2025)],
+                                selected="All", multiple=True, size=3
+                            )
+
+                        with ui.accordion_panel("Season"):
+                            ui.input_select(
+                                "season_stre", "",
+                                ["All", "Winter", "Spring", "Summer", "Fall"],
+                                selected="All", multiple=True, size=3
+                            )
+
+                        with ui.accordion_panel("Month"):
+                            ui.input_select(
+                                "month_stre", "",
+                                ["All"] + [calendar.month_name[m] for m in range(1, 13)],
+                                selected="All", multiple=True, size=3
+                            )
+
+                        with ui.accordion_panel("Day of Week"):
+                            weekdays = ["All"] + list(calendar.day_name)
+                            ui.input_select(
+                                "day_stre", "",
+                                weekdays, selected="All", multiple=True, size=3
+                            )
+
+                        with ui.accordion_panel("Route"):
+                            ui.input_select(
+                                "route_stre", "",
+                                ["All"] + [str(y) for y in streetcarroutes_number],
+                                selected="All", multiple=True, size=3
+                            )
+
+                    ui.input_action_button("apply_filters_stre", "Apply Filters", class_="btn-primary")
+
+                    ui.input_radio_buttons(  
+                        "incident_tupe_streetcar",  
+                        "",  
+                        {"1": "By the number of incidents", "2": "By the duration of incidents"}, selected="") 
+
+
+        
+
+                with ui.navset_card_tab(id="tab1_stree"):
+                        with ui.nav_panel("Date"):
+
+
+
+
+                            @render.plot
+                            @reactive.event(input.apply_filters_stre, input.incident_tupe_streetcar)
+                            def plot1_street():
+
+                                c = str(input.year_stre())
+
+                                if 'All' in c:
+                                    streetcar_df1 = streetcar_df
+                                else:
+
+                                    c_tuple = ast.literal_eval(c)  # Convert string to tuple
+                                    b = [int(x) for x in c_tuple if x.isdigit()] 
+                                    streetcar_df1 = streetcar_df[streetcar_df['Year'].isin(b)]
+
+
+                                a = str(input.month_stre())
+
+                                
+
+                                if 'All' in a:
+
+                                    d = str(input.season_stre())
+
+                                    if 'All' in d:
+                                        streetcar_df1 = streetcar_df1
+
+                                    else:
+                                        d_tuple = ast.literal_eval(d)  # Convert string to tuple
+                                        d = [x for x in d_tuple] 
+                                        streetcar_df1 = streetcar_df1[streetcar_df1['Season'].isin(d)]
+
+
+                                else:
+                                    a_tuple = ast.literal_eval(a)  # Convert string to tuple
+                                    b = [x for x in a_tuple] 
+                                    streetcar_df1 = streetcar_df1[streetcar_df1['Month'].isin(b)]
+
+
+                                a = str(input.day_stre()) 
+
+                                if 'All' in a:
+                                    streetcar_df1 = streetcar_df1
+                                else:
+                                    a_tuple = ast.literal_eval(a)  # Convert string to tuple
+                                    a = [x for x in a_tuple] 
+                                    streetcar_df1 = streetcar_df1[streetcar_df1['Day'].isin(a)]
+
+
+                                c = str(input.route_stre())
+
+                                if 'All' in c:
+                                    streetcar_df1 = streetcar_df1
+                                else:
+
+                                    c_tuple = ast.literal_eval(c)  # Convert string to tuple
+                                    b = [int(x) for x in c_tuple if x.isdigit()] 
+                                    streetcar_df1 = streetcar_df1[streetcar_df1['Route'].isin(b)]
+
+
+
+                                if not input.incident_tupe_streetcar() or input.incident_tupe_streetcar() == "":
+                                    return 
+                                
+                                else:
+
+                                    input_date_index = int(input.incident_tupe_streetcar())
+
+                                    if input_date_index == 1:
+            
+                                        incident_counts = streetcar_df1.groupby('Date').size()
+
+
+                                        plt.figure()  # Ensure a new figure is created
+                                        plt.plot(incident_counts.values, color='blue', marker='o', linestyle='')
+                                        plt.xlabel('Date')
+                                        plt.ylabel('Number of Delay Incidents per Date')
+                                        plt.title('Total Number of Incidents')
+                                        plt.grid(axis='y', linestyle='--', alpha=0.7)
+
+                                        # Handling x-ticks dynamically
+                                        dates = incident_counts.index
+                                        num_dates = len(dates)
+
+                                        if num_dates <= 20:
+                                            plt.xticks(range(num_dates), dates, rotation=30)
+                                        else:
+                                            selected_indices = [0, num_dates // 2, num_dates - 1]
+                                            selected_dates = [dates[i] for i in selected_indices]
+                                            plt.xticks(selected_indices, selected_dates, rotation=0)
+
+
+                                    elif input_date_index == 2:
+
+                                        incident_counts = streetcar_df1.groupby('Date')['Min Delay'].sum()
+
+
+                                        plt.figure()  # Ensure a new figure is created
+                                        plt.plot(incident_counts.values, color='purple', marker='o', linestyle='')
+                                        plt.xlabel('Date')
+                                        plt.ylabel('Duration of Incidents per Date (min)')
+                                        plt.title('Total Duration of Incidents')
+                                        plt.grid(axis='y', linestyle='--', alpha=0.7)
+
+                                        # Handling x-ticks dynamically
+                                        dates = incident_counts.index
+                                        num_dates = len(dates)
+
+                                        if num_dates <= 20:
+                                            plt.xticks(range(num_dates), dates, rotation=30)
+                                        else:
+                                            selected_indices = [0, num_dates // 2, num_dates - 1]
+                                            selected_dates = [dates[i] for i in selected_indices]
+                                            plt.xticks(selected_indices, selected_dates, rotation=0)
+
+
+
+
+
+                        with ui.nav_panel("Time of Day"):
+
+
+
+                            
+                            @render.plot
+                            @reactive.event(input.apply_filters_stre, input.incident_tupe_streetcar)
+                            def plot4_street():
+
+
+
+                                c = str(input.year_stre())
+
+                                if 'All' in c:
+                                    streetcar_df1 = streetcar_df
+                                else:
+
+                                    c_tuple = ast.literal_eval(c)  # Convert string to tuple
+                                    b = [int(x) for x in c_tuple if x.isdigit()] 
+                                    streetcar_df1 = streetcar_df[streetcar_df['Year'].isin(b)]
+
+
+                                a = str(input.month_stre())
+
+                                
+
+                                if 'All' in a:
+
+                                    d = str(input.season_stre())
+
+                                    if 'All' in d:
+                                        streetcar_df1 = streetcar_df1
+
+                                    else:
+                                        d_tuple = ast.literal_eval(d)  # Convert string to tuple
+                                        d = [x for x in d_tuple] 
+                                        streetcar_df1 = streetcar_df1[streetcar_df1['Season'].isin(d)]
+
+
+                                else:
+                                    a_tuple = ast.literal_eval(a)  # Convert string to tuple
+                                    b = [x for x in a_tuple] 
+                                    streetcar_df1 = streetcar_df1[streetcar_df1['Month'].isin(b)]
+
+
+                                a = str(input.day_stre()) 
+
+                                if 'All' in a:
+                                    streetcar_df1 = streetcar_df1
+                                else:
+                                    a_tuple = ast.literal_eval(a)  # Convert string to tuple
+                                    a = [x for x in a_tuple] 
+                                    streetcar_df1 = streetcar_df1[streetcar_df1['Day'].isin(a)]
+
+
+                                c = str(input.route_stre())
+
+                                if 'All' in c:
+                                    streetcar_df1 = streetcar_df1
+                                else:
+
+                                    c_tuple = ast.literal_eval(c)  # Convert string to tuple
+                                    b = [int(x) for x in c_tuple if x.isdigit()] 
+                                    streetcar_df1 = streetcar_df1[streetcar_df1['Route'].isin(b)]
+
+
+
+                                if not input.incident_tupe_streetcar() or input.incident_tupe_streetcar() == "":
+                                    return 
+                                
+                                else:
+
+                                    input_time_index = int(input.incident_tupe_streetcar())
+
+
+
+                                    if input_time_index == 1:
+                                        incident_counts = streetcar_df1.groupby('Time').size().reset_index(name='Incident Count')
+                                        labels = incident_counts['Time'].astype(str).tolist()
+                                        values = incident_counts['Incident Count'].tolist()
+
+                                        # Close the loop
+                                        values += values[:1]
+                                        labels += labels[:1]
+
+                                        # Angles
+                                        angles = np.linspace(0, 2 * np.pi, len(values), endpoint=True)
+
+                                        # Set up figure and axis
+                                        fig, ax = plt.subplots( subplot_kw=dict(polar=True))
+                                        # Plot and fill
+                                        ax.plot(angles, values, color='navy', linewidth=2)
+                                        ax.fill(angles, values, color='skyblue', alpha=0.4)
+
+                                        # Set x-axis (time) labels
+                                        ax.set_xticks(angles[:-1])
+                                        ax.set_xticklabels([''] * len(labels[:-1]))  # Hide default labels
+
+                                        # Custom label positioning
+                                        label_distance = max(values) * 1.1  # adjust 1.1 to increase/decrease distance
+                                        for angle, label in zip(angles[:-1], labels[:-1]):
+                                            ax.text(angle, label_distance, label, ha='center', va='center', fontsize=8)
+
+                                        
+                                        # Create custom radial grid lines
+                                        max_val = max(values)
+                                        num_rings = 4
+                                        ring_vals = np.linspace(0, max_val, num_rings + 1)[1:]
+
+                                        ring_colors = ['#77f571', '#28ded8', '#ed921a', '#ed1e1a']  # light to dark blue
+                                        for r_val, color in zip(ring_vals, ring_colors):
+                                            ax.plot(np.linspace(0, 2 * np.pi, 100), [r_val] * 100, linestyle='--', color=color, linewidth=0.8)
+
+                                        # Hide default y-tick labels
+                                        ax.set_yticklabels([])
+
+                                        # Add custom legend for circle levels
+                                        from matplotlib.lines import Line2D
+                                        legend_handles = [Line2D([0], [0], color=color, lw=1.5, linestyle='--', label=f"{int(r_val)}") 
+                                                        for r_val, color in zip(ring_vals, ring_colors)]
+                                        ax.legend(handles=legend_handles, title="Circle Values", loc='upper left', bbox_to_anchor=(1.05, 1), fontsize=8, title_fontsize=9)
+
+                                        # Title
+
+
+
+
+                                       # Title and layout
+                                        ax.set_title('Total Number of Incidents per Time', fontsize=9, fontweight='bold', pad=15)
+                                        # Show only radial grid lines (concentric circles)
+                                        ax.yaxis.grid(False)
+                                        ax.xaxis.grid(True)
+                                        plt.tight_layout()
+
+                                    elif input_time_index == 2:
+                                        incident_duration = streetcar_df1.groupby('Time')['Min Delay'].sum().reset_index(name='Total Duration')
+                                        labels = incident_duration['Time'].astype(str).tolist()
+                                        values = incident_duration['Total Duration'].tolist()
+
+
+                                        # Close the loop
+                                        values += values[:1]
+                                        labels += labels[:1]
+
+                                        # Angles
+                                        angles = np.linspace(0, 2 * np.pi, len(values), endpoint=True)
+
+                                        # Set up figure and axis
+                                        fig, ax = plt.subplots( subplot_kw=dict(polar=True))
+                                        # Plot and fill
+                                        ax.plot(angles, values, color='navy', linewidth=2)
+                                        ax.fill(angles, values, color='skyblue', alpha=0.4)
+
+                                        # Set x-axis (time) labels
+                                        ax.set_xticks(angles[:-1])
+                                        ax.set_xticklabels([''] * len(labels[:-1]))  # Hide default labels
+
+                                        # Custom label positioning
+                                        label_distance = max(values) * 1.1  # adjust 1.1 to increase/decrease distance
+                                        for angle, label in zip(angles[:-1], labels[:-1]):
+                                            ax.text(angle, label_distance, label, ha='center', va='center', fontsize=8)
+
+                                        
+                                        # Create custom radial grid lines
+                                        max_val = max(values)
+                                        num_rings = 4
+                                        ring_vals = np.linspace(0, max_val, num_rings + 1)[1:]
+
+                                        ring_colors = ['#77f571', '#28ded8', '#ed921a', '#ed1e1a']  # light to dark blue
+                                        for r_val, color in zip(ring_vals, ring_colors):
+                                            ax.plot(np.linspace(0, 2 * np.pi, 100), [r_val] * 100, linestyle='--', color=color, linewidth=0.8)
+
+                                        # Hide default y-tick labels
+                                        ax.set_yticklabels([])
+
+                                        # Add custom legend for circle levels
+                                        from matplotlib.lines import Line2D
+                                        legend_handles = [Line2D([0], [0], color=color, lw=1.5, linestyle='--', label=f"{int(r_val)}") 
+                                                        for r_val, color in zip(ring_vals, ring_colors)]
+                                        ax.legend(handles=legend_handles, title="Circle Values", loc='upper left', bbox_to_anchor=(1.05, 1), fontsize=8, title_fontsize=9)
+
+                                        # Title
+
+
+                                       # Title and layout
+                                        ax.set_title('Total Duration of Incidents per Time', fontsize=9, fontweight='bold', pad=15)
+                                        # Show only radial grid lines (concentric circles)
+                                        ax.yaxis.grid(False)
+                                        ax.xaxis.grid(True)
+                                        plt.tight_layout()
+    
 
 
 
