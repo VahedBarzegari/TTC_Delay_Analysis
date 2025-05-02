@@ -1496,6 +1496,375 @@ with ui.card():
 
 
 
+                        with ui.nav_panel("Day of Week"):
+
+
+
+                            
+                            @render.plot
+                            @reactive.event(input.apply_filters_stre, input.incident_tupe_streetcar)
+                            def plot5_steet():
+
+
+
+
+                                c = str(input.year_stre())
+
+                                if 'All' in c:
+                                    streetcar_df1 = streetcar_df
+                                else:
+
+                                    c_tuple = ast.literal_eval(c)  # Convert string to tuple
+                                    b = [int(x) for x in c_tuple if x.isdigit()] 
+                                    streetcar_df1 = streetcar_df[streetcar_df['Year'].isin(b)]
+
+
+                                a = str(input.month_stre())
+
+                                
+
+                                if 'All' in a:
+
+                                    d = str(input.season_stre())
+
+                                    if 'All' in d:
+                                        streetcar_df1 = streetcar_df1
+
+                                    else:
+                                        d_tuple = ast.literal_eval(d)  # Convert string to tuple
+                                        d = [x for x in d_tuple] 
+                                        streetcar_df1 = streetcar_df1[streetcar_df1['Season'].isin(d)]
+
+
+                                else:
+                                    a_tuple = ast.literal_eval(a)  # Convert string to tuple
+                                    b = [x for x in a_tuple] 
+                                    streetcar_df1 = streetcar_df1[streetcar_df1['Month'].isin(b)]
+
+
+                                a = str(input.day_stre()) 
+
+                                if 'All' in a:
+                                    streetcar_df1 = streetcar_df1
+                                else:
+                                    a_tuple = ast.literal_eval(a)  # Convert string to tuple
+                                    a = [x for x in a_tuple] 
+                                    streetcar_df1 = streetcar_df1[streetcar_df1['Day'].isin(a)]
+
+
+                                c = str(input.route_stre())
+
+                                if 'All' in c:
+                                    streetcar_df1 = streetcar_df1
+                                else:
+
+                                    c_tuple = ast.literal_eval(c)  # Convert string to tuple
+                                    b = [int(x) for x in c_tuple if x.isdigit()] 
+                                    streetcar_df1 = streetcar_df1[streetcar_df1['Route'].isin(b)]
+
+
+
+                                if not input.incident_tupe_streetcar() or input.incident_tupe_streetcar() == "":
+                                    return 
+                                
+                                else:
+
+                                    
+                                    input_day_index = int(input.incident_tupe_streetcar())
+
+
+
+                                    if input_day_index == 1:
+
+
+                                        
+                                        # Group by Day and count incidents
+                                        incident_counts = streetcar_df1.groupby('Day').size().reset_index(name='Incident Count')
+
+                                        # Define the correct weekday order
+                                        weekday_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+
+                                        # Convert 'Day' to an ordered categorical type and sort
+                                        incident_counts['Day'] = pd.Categorical(incident_counts['Day'], categories=weekday_order, ordered=True)
+                                        incident_counts = incident_counts.sort_values('Day')
+
+                                        # Get the maximum incident count
+                                        max_value = incident_counts['Incident Count'].max()
+
+                                        # Set colors: red for max values, skyblue for others
+                                        colors = ['red' if count == max_value else 'skyblue' for count in incident_counts['Incident Count']]
+
+                                        # Plotting
+                                        plt.figure(figsize=(8, 5))
+                                        plt.bar(incident_counts['Day'], incident_counts['Incident Count'], color=colors)
+                                        plt.xlabel('Day')
+                                        plt.ylabel('Total Number of Incidents')
+                                        plt.title('Total Number of Incidents per Day')
+                                        plt.xticks(rotation=0)
+                                        plt.grid(axis='y', linestyle='--', alpha=0.7)
+                                        plt.tight_layout()
+
+
+                                    elif input_day_index==2:
+
+
+                                        # Group by Time and sum the durations
+                                        incident_duration = streetcar_df1.groupby('Day')['Min Delay'].sum().reset_index(name='Total Duration')
+                                        # Define correct weekday order
+                                        weekday_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+
+                                        # Convert Day to ordered categorical and sort
+                                        incident_duration['Day'] = pd.Categorical(incident_duration['Day'], categories=weekday_order, ordered=True)
+                                        incident_duration = incident_duration.sort_values('Day')
+
+                                        # Get the maximum total duration *after sorting*
+                                        max_duration = incident_duration['Total Duration'].max()
+
+                                        # Set colors based on sorted data
+                                        colors = ['red' if dur == max_duration else 'skyblue' for dur in incident_duration['Total Duration']]
+
+                                        # Plot
+                                        plt.figure(figsize=(8, 5))
+                                        plt.bar(incident_duration['Day'], incident_duration['Total Duration'], color=colors)
+                                        plt.xlabel('Day')
+                                        plt.ylabel('Total Duration of Incidents')
+                                        plt.title('Total Duration of Incidents per Day')
+                                        plt.xticks(rotation=0)
+                                        plt.grid(axis='y', linestyle='--', alpha=0.7)
+                                        plt.tight_layout()
+                                
+
+
+
+
+                        with ui.nav_panel("Incident Type"):
+
+
+                
+                            @render.plot
+                            @reactive.event(input.apply_filters_stre)
+                            def plot3_street():
+
+
+
+
+                                c = str(input.year_stre())
+
+                                if 'All' in c:
+                                    streetcar_df1 = streetcar_df
+                                else:
+
+                                    c_tuple = ast.literal_eval(c)  # Convert string to tuple
+                                    b = [int(x) for x in c_tuple if x.isdigit()] 
+                                    streetcar_df1 = streetcar_df[streetcar_df['Year'].isin(b)]
+
+
+                                a = str(input.month_stre())
+
+                                
+
+                                if 'All' in a:
+
+                                    d = str(input.season_stre())
+
+                                    if 'All' in d:
+                                        streetcar_df1 = streetcar_df1
+
+                                    else:
+                                        d_tuple = ast.literal_eval(d)  # Convert string to tuple
+                                        d = [x for x in d_tuple] 
+                                        streetcar_df1 = streetcar_df1[streetcar_df1['Season'].isin(d)]
+
+
+                                else:
+                                    a_tuple = ast.literal_eval(a)  # Convert string to tuple
+                                    b = [x for x in a_tuple] 
+                                    streetcar_df1 = streetcar_df1[streetcar_df1['Month'].isin(b)]
+
+
+                                a = str(input.day_stre()) 
+
+                                if 'All' in a:
+                                    streetcar_df1 = streetcar_df1
+                                else:
+                                    a_tuple = ast.literal_eval(a)  # Convert string to tuple
+                                    a = [x for x in a_tuple] 
+                                    streetcar_df1 = streetcar_df1[streetcar_df1['Day'].isin(a)]
+
+
+                                c = str(input.route_stre())
+
+                                if 'All' in c:
+                                    streetcar_df1 = streetcar_df1
+                                else:
+
+                                    c_tuple = ast.literal_eval(c)  # Convert string to tuple
+                                    b = [int(x) for x in c_tuple if x.isdigit()] 
+                                    streetcar_df1 = streetcar_df1[streetcar_df1['Route'].isin(b)]
+
+
+
+
+                                                                
+
+                                # Count and calculate percentages
+                                incident_counts = streetcar_df1['Incident'].value_counts(normalize=True) * 100
+                                incident_counts = incident_counts.sort_values(ascending=False)
+
+                                # Normalize for colormap
+                                norm = mcolors.Normalize(vmin=incident_counts.min(), vmax=incident_counts.max())
+                                colors = [cm.Reds(norm(value)) for value in incident_counts.values]
+
+                                # Plot
+                                fig, ax = plt.subplots()
+                                bars = ax.bar(
+                                    incident_counts.index, 
+                                    incident_counts.values, 
+                                    color=colors, 
+                                    edgecolor='black',
+                                    linewidth=0.5
+                                )
+
+                                # Add percentage labels
+                                for bar, pct in zip(bars, incident_counts.values):
+                                    ax.text(
+                                        bar.get_x() + bar.get_width() / 2, 
+                                        bar.get_height() + 0.1, 
+                                        f'{pct:.2f}', 
+                                        ha='center', va='bottom', fontsize=9, fontweight='medium'
+                                    )
+
+                                # Customization
+                                ax.set_title('Percentage Distribution of Incident Types', fontsize=10, fontweight='bold', pad=5)
+                                ax.set_ylabel('Percentage of Incidents', fontsize=12)
+                                ax.set_xticklabels(incident_counts.index, rotation=30, ha='right', fontsize=9)
+                                ax.tick_params(axis='y', labelsize=9)
+                                ax.grid(axis='y', linestyle='--', alpha=0.4)
+                                fig.patch.set_facecolor('white')
+                                ax.set_facecolor('white')
+
+                                plt.tight_layout()
+             
+
+
+
+                        with ui.nav_panel("Direction"):
+
+
+
+                
+                            @render.plot
+                            @reactive.event(input.apply_filters_stre)
+                            def plot_direction_street():
+
+
+
+
+                                c = str(input.year_stre())
+
+                                if 'All' in c:
+                                    streetcar_df1 = streetcar_df
+                                else:
+
+                                    c_tuple = ast.literal_eval(c)  # Convert string to tuple
+                                    b = [int(x) for x in c_tuple if x.isdigit()] 
+                                    streetcar_df1 = streetcar_df[streetcar_df['Year'].isin(b)]
+
+
+                                a = str(input.month_stre())
+
+                                
+
+                                if 'All' in a:
+
+                                    d = str(input.season_stre())
+
+                                    if 'All' in d:
+                                        streetcar_df1 = streetcar_df1
+
+                                    else:
+                                        d_tuple = ast.literal_eval(d)  # Convert string to tuple
+                                        d = [x for x in d_tuple] 
+                                        streetcar_df1 = streetcar_df1[streetcar_df1['Season'].isin(d)]
+
+
+                                else:
+                                    a_tuple = ast.literal_eval(a)  # Convert string to tuple
+                                    b = [x for x in a_tuple] 
+                                    streetcar_df1 = streetcar_df1[streetcar_df1['Month'].isin(b)]
+
+
+                                a = str(input.day_stre()) 
+
+                                if 'All' in a:
+                                    streetcar_df1 = streetcar_df1
+                                else:
+                                    a_tuple = ast.literal_eval(a)  # Convert string to tuple
+                                    a = [x for x in a_tuple] 
+                                    streetcar_df1 = streetcar_df1[streetcar_df1['Day'].isin(a)]
+
+
+                                c = str(input.route_stre())
+
+                                if 'All' in c:
+                                    streetcar_df1 = streetcar_df1
+                                else:
+
+                                    c_tuple = ast.literal_eval(c)  # Convert string to tuple
+                                    b = [int(x) for x in c_tuple if x.isdigit()] 
+                                    streetcar_df1 = streetcar_df1[streetcar_df1['Route'].isin(b)]
+
+
+
+
+
+                                # Count occurrences of each direction
+                                direction_counts = streetcar_df1['Direction'].value_counts()
+
+                                percentages = 100 * direction_counts / direction_counts.sum()
+                                labels = direction_counts.index
+                                sizes = direction_counts.values
+
+                                # Format labels with percentages
+                                legend_labels = [f"{label}: {pct:.1f}%" for label, pct in zip(labels, percentages)]
+
+                                # Colors (custom pastel palette)
+                                colors = plt.cm.Paired.colors[:len(labels)]
+
+                                # Explode slightly for all slices
+                                explode = [0.05] * len(labels)
+
+                                # Plot
+                                fig, ax = plt.subplots()
+                                wedges, texts = ax.pie(
+                                    sizes,
+                                    labels=None,
+                                    startangle=90,
+                                    wedgeprops=dict(width=0.4, edgecolor='w'),
+                                    explode=explode,
+                                    colors=colors,
+                                    shadow=True
+                                )
+
+                                # Equal aspect ratio
+                                ax.axis('equal')
+
+                                # Legend at bottom
+                                ax.legend(
+                                    wedges, legend_labels,
+                                    
+                                    loc='lower center',
+                                    bbox_to_anchor=(0.5, -0.25),
+                                    ncol=3,
+                                    fontsize='medium',
+                                    title_fontsize='large',
+                                    frameon=False
+                                )
+
+                                # Title
+                                plt.title("Distribution of Incident Directions", fontsize=16, fontweight='bold')
+                                plt.tight_layout()
+
         # Subway Tab
         with ui.nav_panel("Subway"):
             ui.h5("Subway Data Coming Soon", class_="small-font")
