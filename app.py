@@ -19,7 +19,7 @@ import matplotlib.cm as cm
 import matplotlib.colors as mcolors
 
 
-from core_data_code import Bus_general_inf_dataframe, bus_df
+from core_data_code import Bus_general_inf_dataframe, bus_df, streetcar_df, Streetcar_general_inf_dataframe
 
 # ---- Global Styles ----
 ui.markdown(
@@ -146,7 +146,7 @@ filtered_numbers = [num for num in numbers if num not in remove_list]
 
 added_routes = [149, 154, 160, 161, 162, 165, 167, 168, 169, 171, 185, 189, 300, 302, 307, 315, 320, 322, 324, 325, 329, 332, 334, 335, 336, 337, 339, 340, 341, 343, 352, 353, 354, 363, 365, 384, 385, 395, 396, 400, 402, 403, 404, 405, 900, 902, 903, 904, 905, 924, 925, 927, 929, 935, 937, 938, 939, 941, 944, 945, 952, 954, 960, 968, 984, 985, 986, 989, 995, 996]
 
-routes_number = filtered_numbers + added_routes
+busroutes_number = filtered_numbers + added_routes
 
 
 # ---- Header ----
@@ -198,10 +198,10 @@ with ui.card():
                                                     ui.tags.li("All delays equal to zero are removed from analysis."),
                                                     ui.tags.li(ui.HTML("All delays greater than the <span style='text-decoration: underline;color: blue;'>995th</span> percentile are removed.")),
                                                     ui.tags.li(ui.HTML(f"Total number of assessed incidents is <span style='text-decoration: underline; color:blue;'>{total_incidents}</span>.")),
-                                                    ui.tags.li(ui.HTML("We only hold incidents related to routes that are active in <span style='color: blue; text-decoration: underline;'>2025</span>.")),
                                                     ui.tags.li("Location features are deleted as they are not consist of coordinates."),
                                                     ui.tags.li(ui.HTML("Some direction were not entered correctly and labeled as <b><i><span style='color:red;'>Unknown</span></i></b>.")),
                                                     ui.tags.li(ui.HTML("Data of December <span style='text-decoration: underline; color:blue;'>2024</span> was not included in the databse.")),
+                                                    ui.tags.li(ui.HTML("We only hold incidents related to routes that are active in <span style='color: blue; text-decoration: underline;'>2025</span>.")),
                                                     ui.tags.li([
                                                         "For list of active routes refer to: ",
                                                         ui.a("ttc.ca/routes/bus", href="https://www.ttc.ca/routes-and-schedules/listroutes/bus", target="_blank")
@@ -213,7 +213,7 @@ with ui.card():
                                         )
                                     )
 
-                            with ui.nav_panel("Worst Routes"):
+                            with ui.nav_panel("Worst Bus Routes"):
                              
 
                                 @render.data_frame  
@@ -322,7 +322,7 @@ with ui.card():
                         with ui.accordion_panel("Route"):
                             ui.input_select(
                                 "route", "",
-                                ["All"] + [str(y) for y in routes_number],
+                                ["All"] + [str(y) for y in busroutes_number],
                                 selected="All", multiple=True, size=3
                             )
 
@@ -1003,7 +1003,119 @@ with ui.card():
                                 plt.tight_layout()
         # Streetcar Tab
         with ui.nav_panel("Streetcar"):
-            ui.h5("Streetcar Data Coming Soon", class_="small-font")
+
+
+            with ui.card(height="600px"):
+                
+                ui.card_header("General Information", class_="info-gen-css")
+
+                with ui.layout_columns(col_widths={"sm": (4, 8)}):
+
+                    
+                    with ui.card(class_="card_Insights"):
+                        ui.card_header("Insights", class_="insight_title-css")
+
+                        @render.data_frame  
+                        def insights_streetcar_df():
+                            return render.DataGrid(Streetcar_general_inf_dataframe, selection_mode="row")  
+
+                    with ui.card():
+                        with ui.navset_pill(id="tab5"): 
+
+                            with ui.nav_panel("Explanation"):
+
+                                @render.ui
+                                def dynamic_content_streetcar():
+                                    total_incidents = len(streetcar_df)
+
+                                    return ui.TagList(
+                                        ui.div(  # Add border wrapper
+                                            ui.tags.ul(
+                                                [
+                                                    ui.tags.li(ui.HTML("Data from <span style='text-decoration: underline; color:blue;'>2014</span> to the end of <span style='text-decoration: underline;color:blue;'>2024</span> are assessed.")),
+                                                    ui.tags.li("All delays equal to zero are removed from analysis."),
+                                                    ui.tags.li(ui.HTML("All delays greater than the <span style='text-decoration: underline;color: blue;'>995th</span> percentile are removed.")),
+                                                    ui.tags.li(ui.HTML(f"Total number of assessed incidents is <span style='text-decoration: underline; color:blue;'>{total_incidents}</span>.")),
+                                                    ui.tags.li("Location features are deleted as they are not consist of coordinates."),
+                                                    ui.tags.li(ui.HTML("Some direction were not entered correctly and labeled as <b><i><span style='color:red;'>Unknown</span></i></b>.")),
+                                                    ui.tags.li(ui.HTML("Data of December <span style='text-decoration: underline; color:blue;'>2024</span> was not included in the databse.")),
+                                                    ui.tags.li(ui.HTML("We only hold incidents related to routes that are active in <span style='color: blue; text-decoration: underline;'>2025</span>.")),
+                                                    ui.tags.li([
+                                                        "For list of active routes refer to: ",
+                                                        ui.a("ttc.ca/routes/streetcar", href="https://www.ttc.ca/routes-and-schedules/listroutes/streetcar", target="_blank")
+                                                    ])
+                                                ],
+                                                style="line-height: 2.5;"
+                                            ),
+                                            style="border: 2px solid #ccc; padding: 0px !important; border-radius: 30px; margin-top: 0px !important;"
+                                        )
+                                    )
+
+                            with ui.nav_panel("Worst Streetcar Routes"):
+                             
+
+                                @render.data_frame  
+                                def worst_routes_street_df():
+
+                                    # Group by Year and Route to get counts and delay sums
+                                    summary = streetcar_df.groupby(['Year', 'Route']).agg(
+                                        incident_count=('Route', 'count'),
+                                        total_delay=('Min Delay', 'sum')
+                                    ).reset_index()
+
+                                    # For each year, find the route with max incidents
+                                    worst_by_incidents = summary.loc[summary.groupby('Year')['incident_count'].idxmax()]
+
+                                    # For each year, find the route with max total delay
+                                    worst_by_delay = summary.loc[summary.groupby('Year')['total_delay'].idxmax()]
+
+                                    # Merge the two summaries (optional)
+                                    result = worst_by_incidents.merge(
+                                        worst_by_delay,
+                                        on='Year',
+                                        suffixes=('_most_incidents', '_most_delay')
+                                    )
+                                    result = result.drop(['incident_count_most_incidents', 'total_delay_most_incidents', 'incident_count_most_delay', 'total_delay_most_delay'], axis=1)
+
+                                    result = result.rename(columns={'Route_most_incidents': 'Route with the highest incident occurrence', 'Route_most_delay': 'Route with the highest total delay'})
+
+
+                            
+                                    return render.DataGrid(result, selection_mode="row")  
+
+
+                            with ui.nav_panel("Year Comparasion"):
+
+                                @render.plot
+
+                                def yearplot_com_streetcar():
+
+                                    # Set Seaborn style
+                                    sns.set(style="whitegrid")
+
+                                    # Group and prepare data
+                                    delay_per_year = streetcar_df.groupby('Year')['Min Delay'].sum().reset_index()
+
+                                    # Plot
+                                    plt.figure(figsize=(8, 4))
+                                    line = plt.plot(delay_per_year['Year'], delay_per_year['Min Delay'],
+                                                    marker='o', color='#d98314', linewidth=2.5, label='Total Min Delay')
+
+                                
+                                    # Titles and labels
+                                    
+                                    plt.xlabel('Year', fontsize=10)
+                                    plt.ylabel('Total Duration of Delays (minutes)', fontsize=10)
+                                    plt.xticks(delay_per_year['Year'])  # Ensure all years are shown
+                                    plt.grid(alpha=0.3)
+
+                                 
+
+                                    plt.tight_layout()
+
+
+
+
 
         # Subway Tab
         with ui.nav_panel("Subway"):
