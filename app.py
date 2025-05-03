@@ -19,7 +19,7 @@ import matplotlib.cm as cm
 import matplotlib.colors as mcolors
 
 
-from core_data_code import Bus_general_inf_dataframe, bus_df, streetcar_df, Streetcar_general_inf_dataframe
+from core_data_code import Bus_general_inf_dataframe, bus_df, streetcar_df, Streetcar_general_inf_dataframe, subway_df, Subway_general_inf_dataframe
 
 # ---- Global Styles ----
 ui.markdown(
@@ -150,6 +150,8 @@ busroutes_number = filtered_numbers + added_routes
 
 
 streetcarroutes_number = [500, 501, 503, 504, 505, 506, 509, 510, 511, 512, 507, 301, 303, 304, 305, 306, 310, 312]
+
+subway_line_numbers = [1, 2, 4]
 
 # ---- Header ----
 with ui.div(class_="header-container"):
@@ -1873,6 +1875,177 @@ with ui.card():
 
         # Subway Tab
         with ui.nav_panel("Subway"):
-            ui.h5("Subway Data Coming Soon", class_="small-font")
+
+
+            with ui.card(height="600px"):
+                
+                ui.card_header("General Information", class_="info-gen-css")
+
+                with ui.layout_columns(col_widths={"sm": (4, 8)}):
+
+                    
+                    with ui.card(class_="card_Insights"):
+                        ui.card_header("Insights", class_="insight_title-css")
+
+                        @render.data_frame  
+                        def insights_df_subway():
+                            return render.DataGrid(Subway_general_inf_dataframe, selection_mode="row")  
+
+                    with ui.card():
+                        with ui.navset_pill(id="tab21"): 
+
+                            with ui.nav_panel("Explanation"):
+
+                                @render.ui
+                                def dynamic_content_subway():
+                                    total_incidents = len(subway_df)
+
+                                    return ui.TagList(
+                                        ui.div(  # Add border wrapper
+                                            ui.tags.ul(
+                                                [
+                                                    ui.tags.li(ui.HTML("Data from <span style='text-decoration: underline; color:blue;'>2014</span> to the end of <span style='text-decoration: underline;color:blue;'>2024</span> are assessed.")),
+                                                    ui.tags.li("All delays equal to zero are removed from analysis."),
+                                                    ui.tags.li(ui.HTML("All delays greater than the <span style='text-decoration: underline;color: blue;'>995th</span> percentile are removed.")),
+                                                    ui.tags.li(ui.HTML(f"Total number of assessed incidents is <span style='text-decoration: underline; color:blue;'>{total_incidents}</span>.")),
+                                                    ui.tags.li("Station features are deleted as they are not consist of coordinates."),
+                                                    ui.tags.li(ui.HTML("Some direction were not entered correctly and labeled as <b><i><span style='color:red;'>Unknown</span></i></b>.")),
+                                                    ui.tags.li(ui.HTML("Data of December <span style='text-decoration: underline; color:blue;'>2024</span> was not included in the databse.")),
+                                                    ui.tags.li(ui.HTML("We only hold incidents related to routes that are active in <span style='color: blue; text-decoration: underline;'>2025</span>.")),
+                                                    ui.tags.li([
+                                                        "For list of active subway lines refer to: ",
+                                                        ui.a("ttc.ca/routes/subway", href="https://www.ttc.ca/routes-and-schedules", target="_blank")
+                                                    ])
+                                                ],
+                                                style="line-height: 2.5;"
+                                            ),
+                                            style="border: 2px solid #ccc; padding: 0px !important; border-radius: 30px; margin-top: 0px !important;"
+                                        )
+                                    )
+
+                            with ui.nav_panel("Worst Subway Lines"):
+                             
+
+                                @render.data_frame  
+                                def worst_routes_df_subway():
+
+                                    # Group by Year and Route to get counts and delay sums
+                                    summary = subway_df.groupby(['Year', 'Route']).agg(
+                                        incident_count=('Route', 'count'),
+                                        total_delay=('Min Delay', 'sum')
+                                    ).reset_index()
+
+                                    # For each year, find the route with max incidents
+                                    worst_by_incidents = summary.loc[summary.groupby('Year')['incident_count'].idxmax()]
+
+                                    # For each year, find the route with max total delay
+                                    worst_by_delay = summary.loc[summary.groupby('Year')['total_delay'].idxmax()]
+
+                                    # Merge the two summaries (optional)
+                                    result = worst_by_incidents.merge(
+                                        worst_by_delay,
+                                        on='Year',
+                                        suffixes=('_most_incidents', '_most_delay')
+                                    )
+                                    result = result.drop(['incident_count_most_incidents', 'total_delay_most_incidents', 'incident_count_most_delay', 'total_delay_most_delay'], axis=1)
+
+                                    result = result.rename(columns={'Route_most_incidents': 'Line with the highest incident occurrence', 'Route_most_delay': 'Line with the highest total delay'})
+
+
+                            
+                                    return render.DataGrid(result, selection_mode="row")  
+
+
+                            with ui.nav_panel("Year Comparasion"):
+
+                                @render.plot
+
+                                def yearplot_com_subway():
+
+                                    # Set Seaborn style
+                                    sns.set(style="whitegrid")
+
+                                    # Group and prepare data
+                                    delay_per_year = subway_df.groupby('Year')['Min Delay'].sum().reset_index()
+
+                                    # Plot
+                                    plt.figure(figsize=(8, 4))
+                                    line = plt.plot(delay_per_year['Year'], delay_per_year['Min Delay'],
+                                                    marker='o', color='#1f77b4', linewidth=2.5, label='Total Min Delay')
+
+                                
+                                    # Titles and labels
+                                    
+                                    plt.xlabel('Year', fontsize=10)
+                                    plt.ylabel('Total Duration of Delays (minutes)', fontsize=10)
+                                    plt.xticks(delay_per_year['Year'])  # Ensure all years are shown
+                                    plt.grid(alpha=0.3)
+
+                                 
+
+                                    plt.tight_layout()
+
+                             
+
+            ui.br()
+
+
+
+
+           
+
+            with ui.layout_columns(col_widths={"sm": (3, 9)}):
+
+                with ui.card(height="200px", class_="card_Filters"):
+                    ui.card_header("Select Filters", class_="fliter_box-css")
+                    
+            
+
+                
+                    with ui.accordion(id="acc_subway",open=[]):
+
+                        with ui.accordion_panel("Year"):
+                            ui.input_select(
+                                "year_sub", "",
+                                ["All"] + [str(y) for y in range(2014, 2025)],
+                                selected="All", multiple=True, size=3
+                            )
+
+                        with ui.accordion_panel("Season"):
+                            ui.input_select(
+                                "season_sub", "",
+                                ["All", "Winter", "Spring", "Summer", "Fall"],
+                                selected="All", multiple=True, size=3
+                            )
+
+                        with ui.accordion_panel("Month"):
+                            ui.input_select(
+                                "month_sub", "",
+                                ["All"] + [calendar.month_name[m] for m in range(1, 13)],
+                                selected="All", multiple=True, size=3
+                            )
+
+                        with ui.accordion_panel("Day of Week"):
+                            weekdays = ["All"] + list(calendar.day_name)
+                            ui.input_select(
+                                "day_sub", "",
+                                weekdays, selected="All", multiple=True, size=3
+                            )
+
+                        with ui.accordion_panel("Line"):
+                            ui.input_select(
+                                "route_sub", "",
+                                ["All"] + [str(y) for y in subway_line_numbers],
+                                selected="All", multiple=True, size=3
+                            )
+
+                    ui.input_action_button("apply_filters_sub", "Apply Filters", class_="btn-primary")
+
+                    ui.input_radio_buttons(  
+                        "incident_tupe_sub",  
+                        "",  
+                        {"1": "By the number of incidents", "2": "By the duration of incidents"}, selected="") 
+
+
 
 
