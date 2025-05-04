@@ -2048,4 +2048,704 @@ with ui.card():
 
 
 
+        
+
+                with ui.navset_card_tab(id="tab13"):
+                        with ui.nav_panel("Date"):
+
+
+
+
+                                @render.plot
+                                @reactive.event(input.apply_filters_sub, input.incident_tupe_sub)
+                                def plot1_sub():
+
+                                    c = str(input.year_sub())
+
+                                    if 'All' in c:
+                                        subway_df1 = subway_df
+                                    else:
+
+                                        c_tuple = ast.literal_eval(c)  # Convert string to tuple
+                                        b = [int(x) for x in c_tuple if x.isdigit()] 
+                                        subway_df1 = subway_df[subway_df['Year'].isin(b)]
+
+
+                                    a = str(input.month_sub())
+
+                                    
+
+                                    if 'All' in a:
+
+                                        d = str(input.season_sub())
+
+                                        if 'All' in d:
+                                            subway_df1 = subway_df1
+
+                                        else:
+                                            d_tuple = ast.literal_eval(d)  # Convert string to tuple
+                                            d = [x for x in d_tuple] 
+                                            subway_df1 = subway_df1[subway_df1['Season'].isin(d)]
+
+
+                                    else:
+                                        a_tuple = ast.literal_eval(a)  # Convert string to tuple
+                                        b = [x for x in a_tuple] 
+                                        subway_df1 = subway_df1[subway_df1['Month'].isin(b)]
+
+
+                                    a = str(input.day_sub()) 
+
+                                    if 'All' in a:
+                                        subway_df1 = subway_df1
+                                    else:
+                                        a_tuple = ast.literal_eval(a)  # Convert string to tuple
+                                        a = [x for x in a_tuple] 
+                                        subway_df1 = subway_df1[subway_df1['Day'].isin(a)]
+
+
+                                    c = str(input.route_sub())
+
+                                    if 'All' in c:
+                                        subway_df1 = subway_df1
+                                    else:
+
+                                        c_tuple = ast.literal_eval(c)  # Convert string to tuple
+                                        b = [int(x) for x in c_tuple if x.isdigit()] 
+                                        subway_df1 = subway_df1[subway_df1['Route'].isin(b)]
+
+
+
+                                    if not input.incident_tupe_sub() or input.incident_tupe_sub() == "":
+                                        return 
+                                    
+                                    else:
+
+                                        input_date_index = int(input.incident_tupe_sub())
+
+                                        if input_date_index == 1:
+                
+                                            incident_counts = subway_df1.groupby('Date').size()
+
+
+                                            plt.figure()  # Ensure a new figure is created
+                                            plt.plot(incident_counts.values, color='blue', marker='o', linestyle='')
+                                            plt.xlabel('Date')
+                                            plt.ylabel('Number of Delay Incidents per Date')
+                                            plt.title('Total Number of Incidents')
+                                            plt.grid(axis='y', linestyle='--', alpha=0.7)
+
+                                            # Handling x-ticks dynamically
+                                            dates = incident_counts.index
+                                            num_dates = len(dates)
+
+                                            if num_dates <= 20:
+                                                plt.xticks(range(num_dates), dates, rotation=30)
+                                            else:
+                                                selected_indices = [0, num_dates // 2, num_dates - 1]
+                                                selected_dates = [dates[i] for i in selected_indices]
+                                                plt.xticks(selected_indices, selected_dates, rotation=0)
+
+
+                                        elif input_date_index == 2:
+
+                                            incident_counts = subway_df1.groupby('Date')['Min Delay'].sum()
+
+
+                                            plt.figure()  # Ensure a new figure is created
+                                            plt.plot(incident_counts.values, color='purple', marker='o', linestyle='')
+                                            plt.xlabel('Date')
+                                            plt.ylabel('Duration of Incidents per Date (min)')
+                                            plt.title('Total Duration of Incidents')
+                                            plt.grid(axis='y', linestyle='--', alpha=0.7)
+
+                                            # Handling x-ticks dynamically
+                                            dates = incident_counts.index
+                                            num_dates = len(dates)
+
+                                            if num_dates <= 20:
+                                                plt.xticks(range(num_dates), dates, rotation=30)
+                                            else:
+                                                selected_indices = [0, num_dates // 2, num_dates - 1]
+                                                selected_dates = [dates[i] for i in selected_indices]
+                                                plt.xticks(selected_indices, selected_dates, rotation=0)
+
+
+
+
+
+
+
+                        with ui.nav_panel("Time of Day"):
+
+
+
+                            
+                            @render.plot
+                            @reactive.event(input.apply_filters_sub, input.incident_tupe_sub)
+                            def plot4_sub():
+
+
+                                c = str(input.year_sub())
+
+                                if 'All' in c:
+                                    subway_df1 = subway_df
+                                else:
+
+                                    c_tuple = ast.literal_eval(c)  # Convert string to tuple
+                                    b = [int(x) for x in c_tuple if x.isdigit()] 
+                                    subway_df1 = subway_df[subway_df['Year'].isin(b)]
+
+
+                                a = str(input.month_sub())
+
+                                
+
+                                if 'All' in a:
+
+                                    d = str(input.season_sub())
+
+                                    if 'All' in d:
+                                        subway_df1 = subway_df1
+
+                                    else:
+                                        d_tuple = ast.literal_eval(d)  # Convert string to tuple
+                                        d = [x for x in d_tuple] 
+                                        subway_df1 = subway_df1[subway_df1['Season'].isin(d)]
+
+
+                                else:
+                                    a_tuple = ast.literal_eval(a)  # Convert string to tuple
+                                    b = [x for x in a_tuple] 
+                                    subway_df1 = subway_df1[subway_df1['Month'].isin(b)]
+
+
+                                a = str(input.day_sub()) 
+
+                                if 'All' in a:
+                                    subway_df1 = subway_df1
+                                else:
+                                    a_tuple = ast.literal_eval(a)  # Convert string to tuple
+                                    a = [x for x in a_tuple] 
+                                    subway_df1 = subway_df1[subway_df1['Day'].isin(a)]
+
+
+                                c = str(input.route_sub())
+
+                                if 'All' in c:
+                                    subway_df1 = subway_df1
+                                else:
+
+                                    c_tuple = ast.literal_eval(c)  # Convert string to tuple
+                                    b = [int(x) for x in c_tuple if x.isdigit()] 
+                                    subway_df1 = subway_df1[subway_df1['Route'].isin(b)]
+
+
+
+                                if not input.incident_tupe_sub() or input.incident_tupe_sub() == "":
+                                    return 
+                                
+                                else:
+
+                                    input_time_index = int(input.incident_tupe_sub())
+
+
+
+                                    if input_time_index == 1:
+                                        incident_counts = subway_df1.groupby('Time').size().reset_index(name='Incident Count')
+                                        labels = incident_counts['Time'].astype(str).tolist()
+                                        values = incident_counts['Incident Count'].tolist()
+
+                                        # Close the loop
+                                        values += values[:1]
+                                        labels += labels[:1]
+
+                                        # Angles
+                                        angles = np.linspace(0, 2 * np.pi, len(values), endpoint=True)
+
+                                        # Set up figure and axis
+                                        fig, ax = plt.subplots( subplot_kw=dict(polar=True))
+                                        # Plot and fill
+                                        ax.plot(angles, values, color='navy', linewidth=2)
+                                        ax.fill(angles, values, color='skyblue', alpha=0.4)
+
+                                        # Set x-axis (time) labels
+                                        ax.set_xticks(angles[:-1])
+                                        ax.set_xticklabels([''] * len(labels[:-1]))  # Hide default labels
+
+                                        # Custom label positioning
+                                        label_distance = max(values) * 1.1  # adjust 1.1 to increase/decrease distance
+                                        for angle, label in zip(angles[:-1], labels[:-1]):
+                                            ax.text(angle, label_distance, label, ha='center', va='center', fontsize=8)
+
+                                        
+                                        # Create custom radial grid lines
+                                        max_val = max(values)
+                                        num_rings = 4
+                                        ring_vals = np.linspace(0, max_val, num_rings + 1)[1:]
+
+                                        ring_colors = ['#77f571', '#28ded8', '#ed921a', '#ed1e1a']  # light to dark blue
+                                        for r_val, color in zip(ring_vals, ring_colors):
+                                            ax.plot(np.linspace(0, 2 * np.pi, 100), [r_val] * 100, linestyle='--', color=color, linewidth=0.8)
+
+                                        # Hide default y-tick labels
+                                        ax.set_yticklabels([])
+
+                                        # Add custom legend for circle levels
+                                        from matplotlib.lines import Line2D
+                                        legend_handles = [Line2D([0], [0], color=color, lw=1.5, linestyle='--', label=f"{int(r_val)}") 
+                                                        for r_val, color in zip(ring_vals, ring_colors)]
+                                        ax.legend(handles=legend_handles, title="Circle Values", loc='upper left', bbox_to_anchor=(1.05, 1), fontsize=8, title_fontsize=9)
+
+                                        # Title
+
+
+
+
+                                       # Title and layout
+                                        ax.set_title('Total Number of Incidents per Time', fontsize=9, fontweight='bold', pad=15)
+                                        # Show only radial grid lines (concentric circles)
+                                        ax.yaxis.grid(False)
+                                        ax.xaxis.grid(True)
+                                        plt.tight_layout()
+
+                                    elif input_time_index == 2:
+                                        incident_duration = subway_df1.groupby('Time')['Min Delay'].sum().reset_index(name='Total Duration')
+                                        labels = incident_duration['Time'].astype(str).tolist()
+                                        values = incident_duration['Total Duration'].tolist()
+
+
+                                        # Close the loop
+                                        values += values[:1]
+                                        labels += labels[:1]
+
+                                        # Angles
+                                        angles = np.linspace(0, 2 * np.pi, len(values), endpoint=True)
+
+                                        # Set up figure and axis
+                                        fig, ax = plt.subplots( subplot_kw=dict(polar=True))
+                                        # Plot and fill
+                                        ax.plot(angles, values, color='navy', linewidth=2)
+                                        ax.fill(angles, values, color='skyblue', alpha=0.4)
+
+                                        # Set x-axis (time) labels
+                                        ax.set_xticks(angles[:-1])
+                                        ax.set_xticklabels([''] * len(labels[:-1]))  # Hide default labels
+
+                                        # Custom label positioning
+                                        label_distance = max(values) * 1.1  # adjust 1.1 to increase/decrease distance
+                                        for angle, label in zip(angles[:-1], labels[:-1]):
+                                            ax.text(angle, label_distance, label, ha='center', va='center', fontsize=8)
+
+                                        
+                                        # Create custom radial grid lines
+                                        max_val = max(values)
+                                        num_rings = 4
+                                        ring_vals = np.linspace(0, max_val, num_rings + 1)[1:]
+
+                                        ring_colors = ['#77f571', '#28ded8', '#ed921a', '#ed1e1a']  # light to dark blue
+                                        for r_val, color in zip(ring_vals, ring_colors):
+                                            ax.plot(np.linspace(0, 2 * np.pi, 100), [r_val] * 100, linestyle='--', color=color, linewidth=0.8)
+
+                                        # Hide default y-tick labels
+                                        ax.set_yticklabels([])
+
+                                        # Add custom legend for circle levels
+                                        from matplotlib.lines import Line2D
+                                        legend_handles = [Line2D([0], [0], color=color, lw=1.5, linestyle='--', label=f"{int(r_val)}") 
+                                                        for r_val, color in zip(ring_vals, ring_colors)]
+                                        ax.legend(handles=legend_handles, title="Circle Values", loc='upper left', bbox_to_anchor=(1.05, 1), fontsize=8, title_fontsize=9)
+
+                                        # Title
+
+
+                                       # Title and layout
+                                        ax.set_title('Total Duration of Incidents per Time', fontsize=9, fontweight='bold', pad=15)
+                                        # Show only radial grid lines (concentric circles)
+                                        ax.yaxis.grid(False)
+                                        ax.xaxis.grid(True)
+                                        plt.tight_layout()
+    
+
+
+
+
+                        with ui.nav_panel("Day of Week"):
+
+
+
+                            
+                            @render.plot
+                            @reactive.event(input.apply_filters_sub, input.incident_tupe_sub)
+                            def plot5_sub():
+
+
+
+                                c = str(input.year_sub())
+
+                                if 'All' in c:
+                                    subway_df1 = subway_df
+                                else:
+
+                                    c_tuple = ast.literal_eval(c)  # Convert string to tuple
+                                    b = [int(x) for x in c_tuple if x.isdigit()] 
+                                    subway_df1 = subway_df[subway_df['Year'].isin(b)]
+
+
+                                a = str(input.month_sub())
+
+                                
+
+                                if 'All' in a:
+
+                                    d = str(input.season_sub())
+
+                                    if 'All' in d:
+                                        subway_df1 = subway_df1
+
+                                    else:
+                                        d_tuple = ast.literal_eval(d)  # Convert string to tuple
+                                        d = [x for x in d_tuple] 
+                                        subway_df1 = subway_df1[subway_df1['Season'].isin(d)]
+
+
+                                else:
+                                    a_tuple = ast.literal_eval(a)  # Convert string to tuple
+                                    b = [x for x in a_tuple] 
+                                    subway_df1 = subway_df1[subway_df1['Month'].isin(b)]
+
+
+                                a = str(input.day_sub()) 
+
+                                if 'All' in a:
+                                    subway_df1 = subway_df1
+                                else:
+                                    a_tuple = ast.literal_eval(a)  # Convert string to tuple
+                                    a = [x for x in a_tuple] 
+                                    subway_df1 = subway_df1[subway_df1['Day'].isin(a)]
+
+
+                                c = str(input.route_sub())
+
+                                if 'All' in c:
+                                    subway_df1 = subway_df1
+                                else:
+
+                                    c_tuple = ast.literal_eval(c)  # Convert string to tuple
+                                    b = [int(x) for x in c_tuple if x.isdigit()] 
+                                    subway_df1 = subway_df1[subway_df1['Route'].isin(b)]
+
+
+
+
+
+                                if not input.incident_tupe_sub() or input.incident_tupe_sub() == "":
+                                    return 
+                                
+                                else:
+
+                                    
+                                    input_day_index = int(input.incident_tupe_sub())
+
+
+
+                                    if input_day_index == 1:
+
+
+                                        
+                                        # Group by Day and count incidents
+                                        incident_counts = subway_df1.groupby('Day').size().reset_index(name='Incident Count')
+
+                                        # Define the correct weekday order
+                                        weekday_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+
+                                        # Convert 'Day' to an ordered categorical type and sort
+                                        incident_counts['Day'] = pd.Categorical(incident_counts['Day'], categories=weekday_order, ordered=True)
+                                        incident_counts = incident_counts.sort_values('Day')
+
+                                        # Get the maximum incident count
+                                        max_value = incident_counts['Incident Count'].max()
+
+                                        # Set colors: red for max values, skyblue for others
+                                        colors = ['red' if count == max_value else 'skyblue' for count in incident_counts['Incident Count']]
+
+                                        # Plotting
+                                        plt.figure(figsize=(8, 5))
+                                        plt.bar(incident_counts['Day'], incident_counts['Incident Count'], color=colors)
+                                        plt.xlabel('Day')
+                                        plt.ylabel('Total Number of Incidents')
+                                        plt.title('Total Number of Incidents per Day')
+                                        plt.xticks(rotation=0)
+                                        plt.grid(axis='y', linestyle='--', alpha=0.7)
+                                        plt.tight_layout()
+
+
+                                    elif input_day_index==2:
+
+
+                                        # Group by Time and sum the durations
+                                        incident_duration = subway_df1.groupby('Day')['Min Delay'].sum().reset_index(name='Total Duration')
+                                        # Define correct weekday order
+                                        weekday_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+
+                                        # Convert Day to ordered categorical and sort
+                                        incident_duration['Day'] = pd.Categorical(incident_duration['Day'], categories=weekday_order, ordered=True)
+                                        incident_duration = incident_duration.sort_values('Day')
+
+                                        # Get the maximum total duration *after sorting*
+                                        max_duration = incident_duration['Total Duration'].max()
+
+                                        # Set colors based on sorted data
+                                        colors = ['red' if dur == max_duration else 'skyblue' for dur in incident_duration['Total Duration']]
+
+                                        # Plot
+                                        plt.figure(figsize=(8, 5))
+                                        plt.bar(incident_duration['Day'], incident_duration['Total Duration'], color=colors)
+                                        plt.xlabel('Day')
+                                        plt.ylabel('Total Duration of Incidents')
+                                        plt.title('Total Duration of Incidents per Day')
+                                        plt.xticks(rotation=0)
+                                        plt.grid(axis='y', linestyle='--', alpha=0.7)
+                                        plt.tight_layout()
+                                
+
+
+
+
+
+                        with ui.nav_panel("Incident Type"):
+
+
+                
+                            @render.plot
+                            @reactive.event(input.apply_filters_sub)
+                            def plot3_subway():
+
+
+
+
+
+                                c = str(input.year_sub())
+
+                                if 'All' in c:
+                                    subway_df1 = subway_df
+                                else:
+
+                                    c_tuple = ast.literal_eval(c)  # Convert string to tuple
+                                    b = [int(x) for x in c_tuple if x.isdigit()] 
+                                    subway_df1 = subway_df[subway_df['Year'].isin(b)]
+
+
+                                a = str(input.month_sub())
+
+                                
+
+                                if 'All' in a:
+
+                                    d = str(input.season_sub())
+
+                                    if 'All' in d:
+                                        subway_df1 = subway_df1
+
+                                    else:
+                                        d_tuple = ast.literal_eval(d)  # Convert string to tuple
+                                        d = [x for x in d_tuple] 
+                                        subway_df1 = subway_df1[subway_df1['Season'].isin(d)]
+
+
+                                else:
+                                    a_tuple = ast.literal_eval(a)  # Convert string to tuple
+                                    b = [x for x in a_tuple] 
+                                    subway_df1 = subway_df1[subway_df1['Month'].isin(b)]
+
+
+                                a = str(input.day_sub()) 
+
+                                if 'All' in a:
+                                    subway_df1 = subway_df1
+                                else:
+                                    a_tuple = ast.literal_eval(a)  # Convert string to tuple
+                                    a = [x for x in a_tuple] 
+                                    subway_df1 = subway_df1[subway_df1['Day'].isin(a)]
+
+
+                                c = str(input.route_sub())
+
+                                if 'All' in c:
+                                    subway_df1 = subway_df1
+                                else:
+
+                                    c_tuple = ast.literal_eval(c)  # Convert string to tuple
+                                    b = [int(x) for x in c_tuple if x.isdigit()] 
+                                    subway_df1 = subway_df1[subway_df1['Route'].isin(b)]
+
+
+
+
+
+                                                                
+
+                                # Count and calculate percentages
+                                incident_counts = subway_df1['Incident'].value_counts(normalize=True) * 100
+                                incident_counts = incident_counts.sort_values(ascending=False)
+
+                                # Normalize for colormap
+                                norm = mcolors.Normalize(vmin=incident_counts.min(), vmax=incident_counts.max())
+                                colors = [cm.Reds(norm(value)) for value in incident_counts.values]
+
+                                # Plot
+                                fig, ax = plt.subplots()
+                                bars = ax.bar(
+                                    incident_counts.index, 
+                                    incident_counts.values, 
+                                    color=colors, 
+                                    edgecolor='black',
+                                    linewidth=0.5
+                                )
+
+                                # Add percentage labels
+                                for bar, pct in zip(bars, incident_counts.values):
+                                    ax.text(
+                                        bar.get_x() + bar.get_width() / 2, 
+                                        bar.get_height() + 0.1, 
+                                        f'{pct:.2f}', 
+                                        ha='center', va='bottom', fontsize=9, fontweight='medium'
+                                    )
+
+                                # Customization
+                                ax.set_title('Percentage Distribution of Incident Types', fontsize=10, fontweight='bold', pad=5)
+                                ax.set_ylabel('Percentage of Incidents', fontsize=12)
+                                ax.set_xticklabels(incident_counts.index, rotation=30, ha='right', fontsize=9)
+                                ax.tick_params(axis='y', labelsize=9)
+                                ax.grid(axis='y', linestyle='--', alpha=0.4)
+                                fig.patch.set_facecolor('white')
+                                ax.set_facecolor('white')
+
+                                plt.tight_layout()
+             
+
+
+
+
+
+                        with ui.nav_panel("Direction"):
+
+
+
+                
+                            @render.plot
+                            @reactive.event(input.apply_filters_sub)
+                            def plot_direction_sub():
+
+
+
+
+
+                                c = str(input.year_sub())
+
+                                if 'All' in c:
+                                    subway_df1 = subway_df
+                                else:
+
+                                    c_tuple = ast.literal_eval(c)  # Convert string to tuple
+                                    b = [int(x) for x in c_tuple if x.isdigit()] 
+                                    subway_df1 = subway_df[subway_df['Year'].isin(b)]
+
+
+                                a = str(input.month_sub())
+
+                                
+
+                                if 'All' in a:
+
+                                    d = str(input.season_sub())
+
+                                    if 'All' in d:
+                                        subway_df1 = subway_df1
+
+                                    else:
+                                        d_tuple = ast.literal_eval(d)  # Convert string to tuple
+                                        d = [x for x in d_tuple] 
+                                        subway_df1 = subway_df1[subway_df1['Season'].isin(d)]
+
+
+                                else:
+                                    a_tuple = ast.literal_eval(a)  # Convert string to tuple
+                                    b = [x for x in a_tuple] 
+                                    subway_df1 = subway_df1[subway_df1['Month'].isin(b)]
+
+
+                                a = str(input.day_sub()) 
+
+                                if 'All' in a:
+                                    subway_df1 = subway_df1
+                                else:
+                                    a_tuple = ast.literal_eval(a)  # Convert string to tuple
+                                    a = [x for x in a_tuple] 
+                                    subway_df1 = subway_df1[subway_df1['Day'].isin(a)]
+
+
+                                c = str(input.route_sub())
+
+                                if 'All' in c:
+                                    subway_df1 = subway_df1
+                                else:
+
+                                    c_tuple = ast.literal_eval(c)  # Convert string to tuple
+                                    b = [int(x) for x in c_tuple if x.isdigit()] 
+                                    subway_df1 = subway_df1[subway_df1['Route'].isin(b)]
+
+
+
+
+
+                                # Count occurrences of each direction
+                                direction_counts = subway_df1['Direction'].value_counts()
+
+                                percentages = 100 * direction_counts / direction_counts.sum()
+                                labels = direction_counts.index
+                                sizes = direction_counts.values
+
+                                # Format labels with percentages
+                                legend_labels = [f"{label}: {pct:.1f}%" for label, pct in zip(labels, percentages)]
+
+                                # Colors (custom pastel palette)
+                                colors = plt.cm.Paired.colors[:len(labels)]
+
+                                # Explode slightly for all slices
+                                explode = [0.05] * len(labels)
+
+                                # Plot
+                                fig, ax = plt.subplots()
+                                wedges, texts = ax.pie(
+                                    sizes,
+                                    labels=None,
+                                    startangle=90,
+                                    wedgeprops=dict(width=0.4, edgecolor='w'),
+                                    explode=explode,
+                                    colors=colors,
+                                    shadow=True
+                                )
+
+                                # Equal aspect ratio
+                                ax.axis('equal')
+
+                                # Legend at bottom
+                                ax.legend(
+                                    wedges, legend_labels,
+                                    
+                                    loc='lower center',
+                                    bbox_to_anchor=(0.5, -0.25),
+                                    ncol=3,
+                                    fontsize='medium',
+                                    title_fontsize='large',
+                                    frameon=False
+                                )
+
+                                # Title
+                                plt.title("Distribution of Incident Directions", fontsize=16, fontweight='bold')
+                                plt.tight_layout()
+
+
+
 

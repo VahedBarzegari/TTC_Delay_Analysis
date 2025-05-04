@@ -79,7 +79,7 @@ with zipfile.ZipFile(zip_filename_streetcar, 'r') as zipf:
 
 
 data = {
-    "Title": ["Start Year", "End Year", "No. of Routes"],
+    "Title": ["Start Year", "End Year", "No. of Lines"],
     "Value": [subway_df['Year'].min(), subway_df['Year'].max(), subway_df['Route'].nunique()]  # Replace None with actual values if available
 }
 
