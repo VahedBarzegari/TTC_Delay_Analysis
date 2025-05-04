@@ -220,7 +220,7 @@ with ui.card():
 
                                 # Minimal space between slider and plot
                                 ui.div(
-                                    ui.input_slider("year_selected_bus", "", 2014, 2024, 2018, width="25%"),
+                                    ui.input_slider("year_selected_bus", "Year", 2014, 2024, 2018, width="25%"),
                                     style="margin: 0px !important; padding: 0px !important; font-size: 6px"  # You can reduce or increase this value
                                 )
                                 with ui.card(height="320px"):
@@ -248,6 +248,10 @@ with ui.card():
                                         plt.yticks(fontsize=9)
 
                                         plt.tight_layout()
+
+
+
+                                        
 
                             with ui.nav_panel("Year Comparasion"):
 
@@ -1059,7 +1063,7 @@ with ui.card():
 
                                 # Minimal space between slider and plot
                                 ui.div(
-                                    ui.input_slider("year_selected_street", "", 2014, 2024, 2018, width="25%"),
+                                    ui.input_slider("year_selected_street", "Year", 2014, 2024, 2018, width="25%"),
                                     style="margin: 0px !important; padding: 0px !important; font-size: 6px"  # You can reduce or increase this value
                                 )
                                 with ui.card(height="320px"):
@@ -1928,7 +1932,7 @@ with ui.card():
 
                                 # Minimal space between slider and plot
                                 ui.div(
-                                    ui.input_slider("year_selected_sub", "", 2014, 2024, 2018, width="25%"),
+                                    ui.input_slider("year_selected_sub", "Year", 2014, 2024, 2018, width="25%"),
                                     style="margin: 0px !important; padding: 0px !important; font-size: 6px"  # You can reduce or increase this value
                                 )
                                 with ui.card(height="320px"):
