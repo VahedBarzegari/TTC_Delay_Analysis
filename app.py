@@ -204,7 +204,6 @@ with ui.card():
                                                     ui.tags.li(ui.HTML(f"Total number of assessed incidents is <span style='text-decoration: underline; color:blue;'>{total_incidents}</span>.")),
                                                     ui.tags.li("Location features are deleted as they are not consist of coordinates."),
                                                     ui.tags.li(ui.HTML("Some direction were not entered correctly and labeled as <b><i><span style='color:red;'>Unknown</span></i></b>.")),
-                                                    ui.tags.li(ui.HTML("Data of December <span style='text-decoration: underline; color:blue;'>2024</span> was not included in the databse.")),
                                                     ui.tags.li(ui.HTML("We only hold incidents related to routes that are active in <span style='color: blue; text-decoration: underline;'>2025</span>.")),
                                                     ui.tags.li([
                                                         "For list of active routes refer to: ",
@@ -1042,7 +1041,6 @@ with ui.card():
                                                     ui.tags.li(ui.HTML(f"Total number of assessed incidents is <span style='text-decoration: underline; color:blue;'>{total_incidents}</span>.")),
                                                     ui.tags.li("Location features are deleted as they are not consist of coordinates."),
                                                     ui.tags.li(ui.HTML("Some direction were not entered correctly and labeled as <b><i><span style='color:red;'>Unknown</span></i></b>.")),
-                                                    ui.tags.li(ui.HTML("Data of December <span style='text-decoration: underline; color:blue;'>2024</span> was not included in the databse.")),
                                                     ui.tags.li(ui.HTML("We only hold incidents related to routes that are active in <span style='color: blue; text-decoration: underline;'>2025</span>.")),
                                                     ui.tags.li([
                                                         "For list of active routes refer to: ",
@@ -1910,7 +1908,6 @@ with ui.card():
                                                     ui.tags.li(ui.HTML(f"Total number of assessed incidents is <span style='text-decoration: underline; color:blue;'>{total_incidents}</span>.")),
                                                     ui.tags.li("Station features are deleted as they are not consist of coordinates."),
                                                     ui.tags.li(ui.HTML("Some direction were not entered correctly and labeled as <b><i><span style='color:red;'>Unknown</span></i></b>.")),
-                                                    ui.tags.li(ui.HTML("Data of December <span style='text-decoration: underline; color:blue;'>2024</span> was not included in the databse.")),
                                                     ui.tags.li(ui.HTML("We only hold incidents related to routes that are active in <span style='color: blue; text-decoration: underline;'>2025</span>.")),
                                                     ui.tags.li([
                                                         "For list of active subway lines refer to: ",
