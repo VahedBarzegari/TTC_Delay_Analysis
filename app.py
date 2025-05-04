@@ -217,37 +217,37 @@ with ui.card():
                                     )
 
                             with ui.nav_panel("Worst Bus Routes"):
-                             
 
-                                @render.data_frame  
-                                def worst_routes_df():
-
-                                    # Group by Year and Route to get counts and delay sums
-                                    summary = bus_df.groupby(['Year', 'Route']).agg(
-                                        incident_count=('Route', 'count'),
-                                        total_delay=('Min Delay', 'sum')
-                                    ).reset_index()
-
-                                    # For each year, find the route with max incidents
-                                    worst_by_incidents = summary.loc[summary.groupby('Year')['incident_count'].idxmax()]
-
-                                    # For each year, find the route with max total delay
-                                    worst_by_delay = summary.loc[summary.groupby('Year')['total_delay'].idxmax()]
-
-                                    # Merge the two summaries (optional)
-                                    result = worst_by_incidents.merge(
-                                        worst_by_delay,
-                                        on='Year',
-                                        suffixes=('_most_incidents', '_most_delay')
-                                    )
-                                    result = result.drop(['incident_count_most_incidents', 'total_delay_most_incidents', 'incident_count_most_delay', 'total_delay_most_delay'], axis=1)
-
-                                    result = result.rename(columns={'Route_most_incidents': 'Route with the highest incident occurrence', 'Route_most_delay': 'Route with the highest total delay'})
+                                # Minimal space between slider and plot
+                                ui.div(
+                                    ui.input_slider("year_selected_bus", "", 2014, 2024, 2018, width="25%"),
+                                    style="margin: 0px !important; padding: 0px !important; font-size: 6px"  # You can reduce or increase this value
+                                )
+                                with ui.card(height="320px"):
 
 
-                            
-                                    return render.DataGrid(result, selection_mode="row")  
 
+                                    @render.plot
+                                    def worst__bus_routes_df():
+                                        year_filter = int(input.year_selected_bus())
+                                        bus_df3 = bus_df[bus_df['Year'] == year_filter]
+
+                                        route_delay_sum = bus_df3.groupby('Route')['Min Delay'].sum().sort_values(ascending=False)
+                                        top_10_routes = route_delay_sum.head(10)
+
+                                        plt.figure()
+                                        sns.barplot(x=top_10_routes.index.astype(str), y=top_10_routes.values, palette='Reds_r')
+
+                                        # Adjusting font size for all elements
+                                        plt.title(f'Top Worst Bus Routes in {year_filter}', fontdict={'fontsize': 9})
+                                        plt.ylabel('Total Delay (minutes)', fontsize=9)
+                                        plt.xlabel('Route', fontsize=9)
+                                        
+                                        route_labels = [f'Route {r}' for r in top_10_routes.index]
+                                        plt.xticks(ticks=range(len(route_labels)), labels=route_labels, rotation=20, fontsize=8)
+                                        plt.yticks(fontsize=9)
+
+                                        plt.tight_layout()
 
                             with ui.nav_panel("Year Comparasion"):
 
@@ -1056,34 +1056,37 @@ with ui.card():
                             with ui.nav_panel("Worst Streetcar Routes"):
                              
 
-                                @render.data_frame  
-                                def worst_routes_street_df():
 
-                                    # Group by Year and Route to get counts and delay sums
-                                    summary = streetcar_df.groupby(['Year', 'Route']).agg(
-                                        incident_count=('Route', 'count'),
-                                        total_delay=('Min Delay', 'sum')
-                                    ).reset_index()
-
-                                    # For each year, find the route with max incidents
-                                    worst_by_incidents = summary.loc[summary.groupby('Year')['incident_count'].idxmax()]
-
-                                    # For each year, find the route with max total delay
-                                    worst_by_delay = summary.loc[summary.groupby('Year')['total_delay'].idxmax()]
-
-                                    # Merge the two summaries (optional)
-                                    result = worst_by_incidents.merge(
-                                        worst_by_delay,
-                                        on='Year',
-                                        suffixes=('_most_incidents', '_most_delay')
-                                    )
-                                    result = result.drop(['incident_count_most_incidents', 'total_delay_most_incidents', 'incident_count_most_delay', 'total_delay_most_delay'], axis=1)
-
-                                    result = result.rename(columns={'Route_most_incidents': 'Route with the highest incident occurrence', 'Route_most_delay': 'Route with the highest total delay'})
+                                # Minimal space between slider and plot
+                                ui.div(
+                                    ui.input_slider("year_selected_street", "", 2014, 2024, 2018, width="25%"),
+                                    style="margin: 0px !important; padding: 0px !important; font-size: 6px"  # You can reduce or increase this value
+                                )
+                                with ui.card(height="320px"):
 
 
-                            
-                                    return render.DataGrid(result, selection_mode="row")  
+
+                                    @render.plot
+                                    def worst__street_routes_df():
+                                        year_filter = int(input.year_selected_street())
+                                        streetcar_df3 = streetcar_df[streetcar_df['Year'] == year_filter]
+
+                                        route_delay_sum = streetcar_df3.groupby('Route')['Min Delay'].sum().sort_values(ascending=False)
+                                        top_10_routes = route_delay_sum.head(10)
+
+                                        plt.figure()
+                                        sns.barplot(x=top_10_routes.index.astype(str), y=top_10_routes.values, palette='Reds_r')
+
+                                        # Adjusting font size for all elements
+                                        plt.title(f'Top Worst Streetcar Routes in {year_filter}', fontdict={'fontsize': 9})
+                                        plt.ylabel('Total Delay (minutes)', fontsize=9)
+                                        plt.xlabel('Route', fontsize=9)
+                                        
+                                        route_labels = [f'Route {r}' for r in top_10_routes.index]
+                                        plt.xticks(ticks=range(len(route_labels)), labels=route_labels, rotation=20, fontsize=8)
+                                        plt.yticks(fontsize=9)
+
+                                        plt.tight_layout()
 
 
                             with ui.nav_panel("Year Comparasion"):
@@ -1923,35 +1926,37 @@ with ui.card():
                             with ui.nav_panel("Worst Subway Lines"):
                              
 
-                                @render.data_frame  
-                                def worst_routes_df_subway():
-
-                                    # Group by Year and Route to get counts and delay sums
-                                    summary = subway_df.groupby(['Year', 'Route']).agg(
-                                        incident_count=('Route', 'count'),
-                                        total_delay=('Min Delay', 'sum')
-                                    ).reset_index()
-
-                                    # For each year, find the route with max incidents
-                                    worst_by_incidents = summary.loc[summary.groupby('Year')['incident_count'].idxmax()]
-
-                                    # For each year, find the route with max total delay
-                                    worst_by_delay = summary.loc[summary.groupby('Year')['total_delay'].idxmax()]
-
-                                    # Merge the two summaries (optional)
-                                    result = worst_by_incidents.merge(
-                                        worst_by_delay,
-                                        on='Year',
-                                        suffixes=('_most_incidents', '_most_delay')
-                                    )
-                                    result = result.drop(['incident_count_most_incidents', 'total_delay_most_incidents', 'incident_count_most_delay', 'total_delay_most_delay'], axis=1)
-
-                                    result = result.rename(columns={'Route_most_incidents': 'Line with the highest incident occurrence', 'Route_most_delay': 'Line with the highest total delay'})
+                                # Minimal space between slider and plot
+                                ui.div(
+                                    ui.input_slider("year_selected_sub", "", 2014, 2024, 2018, width="25%"),
+                                    style="margin: 0px !important; padding: 0px !important; font-size: 6px"  # You can reduce or increase this value
+                                )
+                                with ui.card(height="320px"):
 
 
-                            
-                                    return render.DataGrid(result, selection_mode="row")  
 
+                                    @render.plot
+                                    def worst__subway_routes_df():
+                                        year_filter = int(input.year_selected_sub())
+                                        subway_df3 = subway_df[subway_df['Year'] == year_filter]
+                                        print(subway_df)
+
+                                        route_delay_sum = subway_df3.groupby('Route')['Min Delay'].sum().sort_values(ascending=False)
+                                        top_10_routes = route_delay_sum.head(10)
+
+                                        plt.figure()
+                                        sns.barplot(x=top_10_routes.index.astype(str), y=top_10_routes.values, palette='Reds_r')
+
+                                        # Adjusting font size for all elements
+                                        plt.title(f'Top Worst Subway Lines in {year_filter}', fontdict={'fontsize': 9})
+                                        plt.ylabel('Total Delay (minutes)', fontsize=9)
+                                        plt.xlabel('Route', fontsize=9)
+                                        
+                                        route_labels = [f'Line {r}' for r in top_10_routes.index]
+                                        plt.xticks(ticks=range(len(route_labels)), labels=route_labels, rotation=20, fontsize=8)
+                                        plt.yticks(fontsize=9)
+
+                                        plt.tight_layout()
 
                             with ui.nav_panel("Year Comparasion"):
 
