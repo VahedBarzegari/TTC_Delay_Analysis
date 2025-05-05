@@ -131,6 +131,25 @@ ui.markdown(
             font-weight: bold !important; /* Makes the text bold */
             background-color: lightblue !important;
         }
+        .small-number-input input {
+            padding: 0px !important;  /* Adjust padding for a compact look */
+           
+        }
+        input[type="number"] {
+            font-size: 12px !important; 
+            padding: 0px !important;  /* Adjust padding for a compact look */
+            text-align: center !important; /* Keep numbers centered */
+            justify-content: center !important;
+            align-items: center !important; 
+            
+        }
+        .station-input-row label {
+            font-size: 14px !important; /* Adjust the font size as needed */
+            padding: 0px !important;
+            margin: 0px !important;
+            justify-content: center !important;
+            align-items: center !important; 
+        }
     }
     </style>
     """
@@ -220,15 +239,15 @@ with ui.card():
 
                                 # Minimal space between slider and plot
                                 ui.div(
-                                    ui.input_slider("year_selected_bus", "Year", 2014, 2024, 2018, width="25%"),
-                                    style="margin: 0px !important; padding: 0px !important; font-size: 6px"  # You can reduce or increase this value
+                                    ui.input_numeric("year_selected_bus", "Year", 2018, min=2014, max=2024, width="25%"),
+                                    class_="small-number-input station-input-row"# You can reduce or increase this value
                                 )
                                 with ui.card(height="320px"):
 
 
-
                                     @render.plot
                                     def worst__bus_routes_df():
+                                        
                                         year_filter = int(input.year_selected_bus())
                                         bus_df3 = bus_df[bus_df['Year'] == year_filter]
 
@@ -251,8 +270,43 @@ with ui.card():
 
 
 
-                                        
+                            with ui.nav_panel("Top Incidents"):
 
+                                # Minimal space between slider and plot
+                                ui.div(
+                                    ui.input_numeric("year_selected_bus_reason", "Year", 2018, min=2014, max=2024, width="25%"),
+                                    class_="small-number-input station-input-row"# You can reduce or increase this value
+                                )
+                                
+                                with ui.card(height="320px"):
+
+                                    @render.plot
+                                    def resean_bus_plot():
+
+                                        year_reason = int(input.year_selected_bus_reason())
+
+
+                                        bus_df59 = bus_df[bus_df['Year']==year_reason]
+    
+
+                                        # Get top 5 delay reasons
+                                        top_5_incidents = bus_df59['Incident'].value_counts().head(5)
+
+                                        # Plot horizontal bar chart
+                                        plt.figure()
+                                        sns.barplot(x=top_5_incidents.values, y=top_5_incidents.index, palette='Blues_d')
+
+                                        # Labeling and styling
+                                        plt.title(f'Top 5 Reasons of Bus Delay in {year_reason}', fontsize=9)
+                                        
+                                        plt.ylabel('', fontsize=10)
+                                        plt.xticks(fontsize=6)
+                                        plt.yticks(fontsize=9)
+                                        plt.tight_layout()
+
+
+
+                            
                             with ui.nav_panel("Year Comparasion"):
 
                                 @render.plot
@@ -275,7 +329,7 @@ with ui.card():
                                     
                                     plt.xlabel('Year', fontsize=10)
                                     plt.ylabel('Total Duration of Delays (minutes)', fontsize=10)
-                                    plt.xticks(delay_per_year['Year'])  # Ensure all years are shown
+                                    plt.xticks(delay_per_year['Year'], fontsize=10)  # Ensure all years are shown
                                     plt.grid(alpha=0.3)
 
                                  
@@ -1063,8 +1117,8 @@ with ui.card():
 
                                 # Minimal space between slider and plot
                                 ui.div(
-                                    ui.input_slider("year_selected_street", "Year", 2014, 2024, 2018, width="25%"),
-                                    style="margin: 0px !important; padding: 0px !important; font-size: 6px"  # You can reduce or increase this value
+                                    ui.input_numeric("year_selected_street", "Year", 2018, min=2014, max=2024, width="25%"),
+                                    class_="small-number-input station-input-row"# You can reduce or increase this value
                                 )
                                 with ui.card(height="320px"):
 
@@ -1093,6 +1147,43 @@ with ui.card():
                                         plt.tight_layout()
 
 
+
+
+                            with ui.nav_panel("Top Incidents"):
+
+                                # Minimal space between slider and plot
+                                ui.div(
+                                    ui.input_numeric("year_selected_street_reason", "Year", 2018, min=2014, max=2024, width="25%"),
+                                    class_="small-number-input station-input-row"# You can reduce or increase this value
+                                )
+                                
+                                with ui.card(height="320px"):
+
+                                    @render.plot
+                                    def resean_street_plot():
+
+                                        year_reason = int(input.year_selected_street_reason())
+
+
+                                        street_df59 = streetcar_df[streetcar_df['Year']==year_reason]
+    
+
+                                        # Get top 5 delay reasons
+                                        top_5_incidents = street_df59['Incident'].value_counts().head(5)
+
+                                        # Plot horizontal bar chart
+                                        plt.figure()
+                                        sns.barplot(x=top_5_incidents.values, y=top_5_incidents.index, palette='Blues_d')
+
+                                        # Labeling and styling
+                                        plt.title(f'Top 5 Reasons of Streetcar Delay in {year_reason}', fontsize=9)
+                                        
+                                        plt.ylabel('', fontsize=10)
+                                        plt.xticks(fontsize=6)
+                                        plt.yticks(fontsize=9)
+                                        plt.tight_layout()
+
+
                             with ui.nav_panel("Year Comparasion"):
 
                                 @render.plot
@@ -1115,7 +1206,7 @@ with ui.card():
                                     
                                     plt.xlabel('Year', fontsize=10)
                                     plt.ylabel('Total Duration of Delays (minutes)', fontsize=10)
-                                    plt.xticks(delay_per_year['Year'])  # Ensure all years are shown
+                                    plt.xticks(delay_per_year['Year'], fontsize=10)  # Ensure all years are shown
                                     plt.grid(alpha=0.3)
 
                                  
@@ -1932,8 +2023,8 @@ with ui.card():
 
                                 # Minimal space between slider and plot
                                 ui.div(
-                                    ui.input_slider("year_selected_sub", "Year", 2014, 2024, 2018, width="25%"),
-                                    style="margin: 0px !important; padding: 0px !important; font-size: 6px"  # You can reduce or increase this value
+                                    ui.input_numeric("year_selected_sub", "Year", 2018, min=2014, max=2024, width="25%"),
+                                    class_="small-number-input station-input-row"# You can reduce or increase this value
                                 )
                                 with ui.card(height="320px"):
 
@@ -1962,6 +2053,42 @@ with ui.card():
 
                                         plt.tight_layout()
 
+
+
+                            with ui.nav_panel("Top Incidents"):
+
+                                # Minimal space between slider and plot
+                                ui.div(
+                                    ui.input_numeric("year_selected_subway_reason", "Year", 2018, min=2014, max=2024, width="25%"),
+                                    class_="small-number-input station-input-row"# You can reduce or increase this value
+                                )
+                                
+                                with ui.card(height="320px"):
+
+                                    @render.plot
+                                    def resean_sub_plot():
+
+                                        year_reason = int(input.year_selected_subway_reason())
+
+
+                                        subway_df59 = subway_df[subway_df['Year']==year_reason]
+    
+
+                                        # Get top 5 delay reasons
+                                        top_5_incidents = subway_df59['Incident'].value_counts().head(5)
+
+                                        # Plot horizontal bar chart
+                                        plt.figure()
+                                        sns.barplot(x=top_5_incidents.values, y=top_5_incidents.index, palette='Blues_d')
+
+                                        # Labeling and styling
+                                        plt.title(f'Top 5 Reasons of Subway Delay in {year_reason}', fontsize=9)
+                                        
+                                        plt.ylabel('', fontsize=10)
+                                        plt.xticks(fontsize=6)
+                                        plt.yticks(fontsize=9)
+                                        plt.tight_layout()
+
                             with ui.nav_panel("Year Comparasion"):
 
                                 @render.plot
@@ -1977,14 +2104,14 @@ with ui.card():
                                     # Plot
                                     plt.figure(figsize=(8, 4))
                                     line = plt.plot(delay_per_year['Year'], delay_per_year['Min Delay'],
-                                                    marker='o', color='#1f77b4', linewidth=2.5, label='Total Min Delay')
+                                                    marker='o', color='#07a38c', linewidth=2.5, label='Total Min Delay')
 
                                 
                                     # Titles and labels
                                     
                                     plt.xlabel('Year', fontsize=10)
                                     plt.ylabel('Total Duration of Delays (minutes)', fontsize=10)
-                                    plt.xticks(delay_per_year['Year'])  # Ensure all years are shown
+                                    plt.xticks(delay_per_year['Year'], fontsize=10)  # Ensure all years are shown
                                     plt.grid(alpha=0.3)
 
                                  
