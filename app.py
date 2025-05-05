@@ -156,7 +156,7 @@ ui.markdown(
 )
 
 # ---- Set Page Options ----
-ui.page_opts(window_title="TTC Delay Dashboard", fillable=False)
+ui.page_opts(window_title="TTC Delay Report", fillable=False)
 
 
 numbers = list(range(1, 136))  # Creates a list from 1 to 135
@@ -181,7 +181,7 @@ with ui.div(class_="header-container"):
             return {"src": str(here / "images/TTC-logo.png")}  # Ensure path correctness
 
     with ui.div(class_="title-container"):
-        ui.h2("TTC Delay Dashboard")
+        ui.h2("TTC Delay Report")
 
 
 # ---- Main UI ----
