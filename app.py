@@ -2075,14 +2075,14 @@ with ui.card():
     
 
                                         # Get top 5 delay reasons
-                                        top_5_incidents = subway_df59['Incident'].value_counts().head(5)
+                                        top_5_incidents = subway_df59['Code'].value_counts().head(5)
 
                                         # Plot horizontal bar chart
                                         plt.figure()
                                         sns.barplot(x=top_5_incidents.values, y=top_5_incidents.index, palette='Blues_d')
 
                                         # Labeling and styling
-                                        plt.title(f'Top 5 Reasons of Subway Delay in {year_reason}', fontsize=9)
+                                        plt.title(f'Top 5 Codes of Subway Delay in {year_reason}', fontsize=9)
                                         
                                         plt.ylabel('', fontsize=10)
                                         plt.xticks(fontsize=6)
